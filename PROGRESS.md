@@ -16,12 +16,12 @@ Status values: Not started · In progress · Done · Blocked
 | M7 | Human Confirmation | Done | 12/12 / 153 pass + 3 skip | M7: Human Confirmation | I1 mutation checked |
 | M8 | Voice Output (TTS) | Done (live test skipped) | 22 pass + 1 skip / 175 pass + 4 skip | M8: Voice Output (TTS) | I1 + I8 mutation checked |
 | M9 | Orchestrator + E2E | Done | 14/14 / 189 pass + 4 skip | M9: Orchestrator + E2E | all services faked |
-| M10 | Evaluation | Not started | | | |
+| M10 | Evaluation | Done (mock only; live untested) | 24/24 / 213 pass + 4 skip | M10: Evaluation | no recordings/keys |
 | M11 | Hardening / DoD | Not started | | | |
 | M12 | Avatar (stretch, gated) | DO NOT START | | | Only if the user explicitly asks after M11 |
 
 ## Current module
-M9 done; waiting for user to say "next" (M10).
+M10 done; waiting for user to say "next" (M11).
 
 ## Decisions log (append; newest last)
 - M0: kit files copied into repo root (project = this folder, not ps16-assistant/). Venv at .venv.
@@ -40,8 +40,10 @@ M9 done; waiting for user to say "next" (M10).
 - M7: Proposal gained `turn_id` (additive); the effort chain = (session, patient turn), so re-fusing the same turn accumulates effort until a message is confirmed, then the chain resets. Repeating the same action is idempotent and not counted as extra effort. A clarification proposal with 0 candidates cannot be confirmed by index (409) but can be edited. `re_fuse_available` is always true after reject/clarify. No proposal-listing endpoint (out of spec).
 - M8: Voice Design verified in installed SDK 2.75.0: text_to_voice.design(voice_description=) -> previews[].generated_voice_id -> text_to_voice.create(voice_name, voice_description, generated_voice_id) -> Voice.voice_id; first preview is auto-picked (no audition step). Speak streams audio/mpeg; first chunk is pulled before headers so errors still map to 502/503 and X-First-Audio-Ms is exact. Subtitle text travels percent-encoded in X-Subtitle-Text. Optional DEFAULT_VOICE_ID env gives a labelled `default_voice`. Session gained voice_id. Speak records go to app.state.speaklog (for M10). Provider-side minimum length of a voice description is unverified (short ones surface as 502).
 - M9: /fuse and /turn/finish share services/pipeline.run_fusion. Metrics are per PATIENT-turn chain (partner turns create none); on a re-fuse the LATEST attempt's finish/proposal stamps are used so system_latency excludes rejected attempts' human time. vision_ms = processing time of the last frame finished before finish (per-frame cost, not end-to-end cue latency). First speak of a chain completes it (replays change nothing) and writes the JSONL line only with demo_use consent; logs dir = LOGS_DIR (default logs/). Realtime-WS turns have no scribe_ms. The no-speech scenario uses a blank patient turn injected into state, since silent transcriptions are never stored.
+- M10: 30 scenarios (5 clear, 5 atypical-SIMULATED, 5 gesture, 5 context, 6 language en/hi/mixed x2, 4 negative); all patient_audio_path null. Runner drives each case through the real pipeline in a private app instance (own stores/clock), arm A without cues, arm B with. Cues are scripted from the scenario file. Simulated-patient effort policy: confirm if right; else reject + one re-fuse, then confirm or edit with the reference text; clarification cases end in clarify/reject. WER is corpus-level (micro), computed once per case from raw hypothesis. Mock uses rule-based MockChatLLM inside the real LLMIntentRanker, so validation/forced-clarification code is exercised; its numbers are by construction and labelled mock. /eval/report.csv returns 404 until a run exists. Settings gained EVAL_SCENARIOS.
 
 ## Open questions
+- To get real numbers: record consented clips, fill patient_audio_path in evaluation/scenarios.json, add ELEVENLABS_API_KEY + GROQ_API_KEY (+ DEFAULT_VOICE_ID), then POST /eval/run {"mode":"live"}.
 - Live TTS test needs ELEVENLABS_API_KEY and DEFAULT_VOICE_ID (an existing voice id) in .env.
 - Add ELEVENLABS_API_KEY to .env and a short clip in tests/data/ to run the M3 live test.
 - Download face_landmarker.task and gesture_recognizer.task into assets/ so the real-model path can be verified. for the user

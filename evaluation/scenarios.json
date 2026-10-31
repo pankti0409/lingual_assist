@@ -1,0 +1,588 @@
+{
+  "version": 1,
+  "note": "Scenario definitions and labels only. injected_transcript is a mock-mode stand-in for ASR output; atypical cases are SIMULATED (hand-written), not real patient speech. patient_audio_path points to recordings the team makes with consent; leave null until then. Cue values are scripted, not measured from video.",
+  "cases": [
+    {
+      "id": "clear-01",
+      "group": "clear",
+      "language": "en",
+      "simulated": false,
+      "context": [
+        {
+          "speaker": "partner",
+          "text": "Would you like some water?"
+        }
+      ],
+      "patient_audio_path": null,
+      "reference_transcript": "Yes, I would like some water please.",
+      "injected_transcript": "Yes, I would like some water please.",
+      "gesture": null,
+      "mouth_activity": true,
+      "expected_intent": "request_water",
+      "intent_aliases": [],
+      "expected_clarification": false
+    },
+    {
+      "id": "clear-02",
+      "group": "clear",
+      "language": "en",
+      "simulated": false,
+      "context": [],
+      "patient_audio_path": null,
+      "reference_transcript": "I need to use the bathroom.",
+      "injected_transcript": "I need to use the bathroom.",
+      "gesture": null,
+      "mouth_activity": true,
+      "expected_intent": "request_bathroom",
+      "intent_aliases": [],
+      "expected_clarification": false
+    },
+    {
+      "id": "clear-03",
+      "group": "clear",
+      "language": "en",
+      "simulated": false,
+      "context": [],
+      "patient_audio_path": null,
+      "reference_transcript": "Please call my daughter.",
+      "injected_transcript": "Please call my daughter.",
+      "gesture": null,
+      "mouth_activity": true,
+      "expected_intent": "request_phone_call",
+      "intent_aliases": [],
+      "expected_clarification": false
+    },
+    {
+      "id": "clear-04",
+      "group": "clear",
+      "language": "en",
+      "simulated": false,
+      "context": [],
+      "patient_audio_path": null,
+      "reference_transcript": "I am feeling cold, can I have a blanket?",
+      "injected_transcript": "I am feeling cold, can I have a blanket?",
+      "gesture": null,
+      "mouth_activity": true,
+      "expected_intent": "request_blanket",
+      "intent_aliases": [],
+      "expected_clarification": false
+    },
+    {
+      "id": "clear-05",
+      "group": "clear",
+      "language": "en",
+      "simulated": false,
+      "context": [],
+      "patient_audio_path": null,
+      "reference_transcript": "Could you turn off the television?",
+      "injected_transcript": "Could you turn off the television?",
+      "gesture": null,
+      "mouth_activity": true,
+      "expected_intent": "request_tv_off",
+      "intent_aliases": [],
+      "expected_clarification": false
+    },
+    {
+      "id": "atypical-01",
+      "group": "atypical",
+      "language": "en",
+      "simulated": true,
+      "context": [
+        {
+          "speaker": "partner",
+          "text": "Water or tea?"
+        }
+      ],
+      "patient_audio_path": null,
+      "reference_transcript": "I would like some water",
+      "injected_transcript": "wa... wa-er",
+      "gesture": null,
+      "mouth_activity": true,
+      "expected_intent": "request_water",
+      "intent_aliases": [],
+      "expected_clarification": false
+    },
+    {
+      "id": "atypical-02",
+      "group": "atypical",
+      "language": "en",
+      "simulated": true,
+      "context": [
+        {
+          "speaker": "partner",
+          "text": "Is the light bothering you?"
+        }
+      ],
+      "patient_audio_path": null,
+      "reference_transcript": "Please turn off the light",
+      "injected_transcript": "pl... off... lie",
+      "gesture": null,
+      "mouth_activity": true,
+      "expected_intent": "request_light_off",
+      "intent_aliases": [],
+      "expected_clarification": false
+    },
+    {
+      "id": "atypical-03",
+      "group": "atypical",
+      "language": "en",
+      "simulated": true,
+      "context": [
+        {
+          "speaker": "partner",
+          "text": "Are you tired?"
+        }
+      ],
+      "patient_audio_path": null,
+      "reference_transcript": "I want to rest",
+      "injected_transcript": "wan... res",
+      "gesture": null,
+      "mouth_activity": true,
+      "expected_intent": "request_rest",
+      "intent_aliases": [],
+      "expected_clarification": false
+    },
+    {
+      "id": "atypical-04",
+      "group": "atypical",
+      "language": "en",
+      "simulated": true,
+      "context": [
+        {
+          "speaker": "partner",
+          "text": "Should I phone your son?"
+        }
+      ],
+      "patient_audio_path": null,
+      "reference_transcript": "Call my son",
+      "injected_transcript": "ca... sun",
+      "gesture": null,
+      "mouth_activity": true,
+      "expected_intent": "request_phone_call",
+      "intent_aliases": [],
+      "expected_clarification": false
+    },
+    {
+      "id": "atypical-05",
+      "group": "atypical",
+      "language": "en",
+      "simulated": true,
+      "context": [
+        {
+          "speaker": "partner",
+          "text": "Do you need anything?"
+        }
+      ],
+      "patient_audio_path": null,
+      "reference_transcript": "I need the bathroom",
+      "injected_transcript": "baf... room",
+      "gesture": null,
+      "mouth_activity": true,
+      "expected_intent": "request_bathroom",
+      "intent_aliases": [],
+      "expected_clarification": false
+    },
+    {
+      "id": "gesture-01",
+      "group": "gesture",
+      "language": "en",
+      "simulated": false,
+      "context": [
+        {
+          "speaker": "partner",
+          "text": "Would you like some water?"
+        }
+      ],
+      "patient_audio_path": null,
+      "reference_transcript": "Yes, water",
+      "injected_transcript": "mm... that",
+      "gesture": {
+        "label": "Thumb_Up",
+        "score": 0.91
+      },
+      "mouth_activity": true,
+      "expected_intent": "request_water",
+      "intent_aliases": [],
+      "expected_clarification": false
+    },
+    {
+      "id": "gesture-02",
+      "group": "gesture",
+      "language": "en",
+      "simulated": false,
+      "context": [
+        {
+          "speaker": "partner",
+          "text": "Shall I turn off the light?"
+        }
+      ],
+      "patient_audio_path": null,
+      "reference_transcript": "Yes, turn off the light",
+      "injected_transcript": "mm... uh",
+      "gesture": {
+        "label": "Thumb_Up",
+        "score": 0.91
+      },
+      "mouth_activity": true,
+      "expected_intent": "request_light_off",
+      "intent_aliases": [],
+      "expected_clarification": false
+    },
+    {
+      "id": "gesture-03",
+      "group": "gesture",
+      "language": "en",
+      "simulated": false,
+      "context": [
+        {
+          "speaker": "partner",
+          "text": "Would you like tea?"
+        }
+      ],
+      "patient_audio_path": null,
+      "reference_transcript": "No tea, thank you",
+      "injected_transcript": "uh... nn",
+      "gesture": {
+        "label": "Thumb_Down",
+        "score": 0.88
+      },
+      "mouth_activity": true,
+      "expected_intent": "decline_tea",
+      "intent_aliases": [
+        "decline_no",
+        "refuse_tea",
+        "decline_request_tea"
+      ],
+      "expected_clarification": false
+    },
+    {
+      "id": "gesture-04",
+      "group": "gesture",
+      "language": "en",
+      "simulated": false,
+      "context": [
+        {
+          "speaker": "partner",
+          "text": "Should I call your daughter?"
+        }
+      ],
+      "patient_audio_path": null,
+      "reference_transcript": "Yes, call her",
+      "injected_transcript": "mm hm",
+      "gesture": {
+        "label": "Thumb_Up",
+        "score": 0.91
+      },
+      "mouth_activity": true,
+      "expected_intent": "request_phone_call",
+      "intent_aliases": [],
+      "expected_clarification": false
+    },
+    {
+      "id": "gesture-05",
+      "group": "gesture",
+      "language": "en",
+      "simulated": false,
+      "context": [
+        {
+          "speaker": "partner",
+          "text": "Do you want to rest?"
+        }
+      ],
+      "patient_audio_path": null,
+      "reference_transcript": "Wait a moment",
+      "injected_transcript": "uh...",
+      "gesture": {
+        "label": "Open_Palm",
+        "score": 0.9
+      },
+      "mouth_activity": true,
+      "expected_intent": "request_pause",
+      "intent_aliases": [
+        "pause",
+        "wait",
+        "request_wait"
+      ],
+      "expected_clarification": false
+    },
+    {
+      "id": "context-01",
+      "group": "context",
+      "language": "en",
+      "simulated": false,
+      "context": [
+        {
+          "speaker": "partner",
+          "text": "Are you hungry?"
+        }
+      ],
+      "patient_audio_path": null,
+      "reference_transcript": "Yes please",
+      "injected_transcript": "yes please",
+      "gesture": null,
+      "mouth_activity": true,
+      "expected_intent": "confirm_yes",
+      "intent_aliases": [
+        "request_food",
+        "accept_food"
+      ],
+      "expected_clarification": false
+    },
+    {
+      "id": "context-02",
+      "group": "context",
+      "language": "en",
+      "simulated": false,
+      "context": [
+        {
+          "speaker": "partner",
+          "text": "Do you want the window open?"
+        }
+      ],
+      "patient_audio_path": null,
+      "reference_transcript": "No thanks",
+      "injected_transcript": "no thanks",
+      "gesture": null,
+      "mouth_activity": true,
+      "expected_intent": "decline_no",
+      "intent_aliases": [
+        "decline_window",
+        "refuse_window"
+      ],
+      "expected_clarification": false
+    },
+    {
+      "id": "context-03",
+      "group": "context",
+      "language": "en",
+      "simulated": false,
+      "context": [
+        {
+          "speaker": "partner",
+          "text": "Water or tea?"
+        }
+      ],
+      "patient_audio_path": null,
+      "reference_transcript": "Tea",
+      "injected_transcript": "tea",
+      "gesture": null,
+      "mouth_activity": true,
+      "expected_intent": "request_tea",
+      "intent_aliases": [],
+      "expected_clarification": false
+    },
+    {
+      "id": "context-04",
+      "group": "context",
+      "language": "en",
+      "simulated": false,
+      "context": [
+        {
+          "speaker": "partner",
+          "text": "Shall we call the nurse?"
+        }
+      ],
+      "patient_audio_path": null,
+      "reference_transcript": "Yes",
+      "injected_transcript": "yes",
+      "gesture": null,
+      "mouth_activity": true,
+      "expected_intent": "confirm_yes",
+      "intent_aliases": [
+        "request_phone_call",
+        "call_nurse",
+        "request_nurse"
+      ],
+      "expected_clarification": false
+    },
+    {
+      "id": "context-05",
+      "group": "context",
+      "language": "en",
+      "simulated": false,
+      "context": [
+        {
+          "speaker": "partner",
+          "text": "How about some soup?"
+        },
+        {
+          "speaker": "patient",
+          "text": "maybe later"
+        },
+        {
+          "speaker": "partner",
+          "text": "Okay, ready now?"
+        }
+      ],
+      "patient_audio_path": null,
+      "reference_transcript": "Yes",
+      "injected_transcript": "yes",
+      "gesture": null,
+      "mouth_activity": true,
+      "expected_intent": "confirm_yes",
+      "intent_aliases": [
+        "request_food",
+        "accept_food"
+      ],
+      "expected_clarification": false
+    },
+    {
+      "id": "lang-en-01",
+      "group": "language",
+      "language": "en",
+      "simulated": false,
+      "context": [],
+      "patient_audio_path": null,
+      "reference_transcript": "I would like some water",
+      "injected_transcript": "I would like some water",
+      "gesture": null,
+      "mouth_activity": true,
+      "expected_intent": "request_water",
+      "intent_aliases": [],
+      "expected_clarification": false
+    },
+    {
+      "id": "lang-en-02",
+      "group": "language",
+      "language": "en",
+      "simulated": false,
+      "context": [],
+      "patient_audio_path": null,
+      "reference_transcript": "Please turn off the light",
+      "injected_transcript": "Please turn off the light",
+      "gesture": null,
+      "mouth_activity": true,
+      "expected_intent": "request_light_off",
+      "intent_aliases": [],
+      "expected_clarification": false
+    },
+    {
+      "id": "lang-hi-01",
+      "group": "language",
+      "language": "hi",
+      "simulated": false,
+      "context": [],
+      "patient_audio_path": null,
+      "reference_transcript": "मुझे पानी चाहिए",
+      "injected_transcript": "मुझे पानी चाहिए",
+      "gesture": null,
+      "mouth_activity": true,
+      "expected_intent": "request_water",
+      "intent_aliases": [],
+      "expected_clarification": false
+    },
+    {
+      "id": "lang-hi-02",
+      "group": "language",
+      "language": "hi",
+      "simulated": false,
+      "context": [],
+      "patient_audio_path": null,
+      "reference_transcript": "कृपया बत्ती बंद कर दीजिए",
+      "injected_transcript": "कृपया बत्ती बंद कर दीजिए",
+      "gesture": null,
+      "mouth_activity": true,
+      "expected_intent": "request_light_off",
+      "intent_aliases": [],
+      "expected_clarification": false
+    },
+    {
+      "id": "lang-mixed-01",
+      "group": "language",
+      "language": "mixed",
+      "simulated": false,
+      "context": [],
+      "patient_audio_path": null,
+      "reference_transcript": "मुझे water चाहिए",
+      "injected_transcript": "मुझे water चाहिए",
+      "gesture": null,
+      "mouth_activity": true,
+      "expected_intent": "request_water",
+      "intent_aliases": [],
+      "expected_clarification": false
+    },
+    {
+      "id": "lang-mixed-02",
+      "group": "language",
+      "language": "mixed",
+      "simulated": false,
+      "context": [],
+      "patient_audio_path": null,
+      "reference_transcript": "please light बंद कर दो",
+      "injected_transcript": "please light बंद कर दो",
+      "gesture": null,
+      "mouth_activity": true,
+      "expected_intent": "request_light_off",
+      "intent_aliases": [],
+      "expected_clarification": false
+    },
+    {
+      "id": "negative-01-conflicting-cues",
+      "group": "negative",
+      "language": "en",
+      "simulated": false,
+      "context": [
+        {
+          "speaker": "partner",
+          "text": "Do you want water?"
+        }
+      ],
+      "patient_audio_path": null,
+      "reference_transcript": "Yes, water",
+      "injected_transcript": "yes water",
+      "gesture": {
+        "label": "Thumb_Down",
+        "score": 0.88
+      },
+      "mouth_activity": true,
+      "expected_intent": "unclear",
+      "intent_aliases": [],
+      "expected_clarification": true
+    },
+    {
+      "id": "negative-02-no-gesture",
+      "group": "negative",
+      "language": "en",
+      "simulated": false,
+      "context": [],
+      "patient_audio_path": null,
+      "reference_transcript": "mm, that one",
+      "injected_transcript": "mm... that one",
+      "gesture": null,
+      "mouth_activity": true,
+      "expected_intent": "unclear",
+      "intent_aliases": [],
+      "expected_clarification": true
+    },
+    {
+      "id": "negative-03-noise",
+      "group": "negative",
+      "language": "en",
+      "simulated": false,
+      "context": [],
+      "patient_audio_path": null,
+      "reference_transcript": "",
+      "injected_transcript": "krrr ... shh",
+      "gesture": null,
+      "mouth_activity": false,
+      "expected_intent": "unclear",
+      "intent_aliases": [],
+      "expected_clarification": true
+    },
+    {
+      "id": "negative-04-no-speech",
+      "group": "negative",
+      "language": "en",
+      "simulated": false,
+      "context": [],
+      "patient_audio_path": null,
+      "reference_transcript": "",
+      "injected_transcript": "",
+      "gesture": null,
+      "mouth_activity": false,
+      "expected_intent": "unclear",
+      "intent_aliases": [],
+      "expected_clarification": true
+    }
+  ]
+}
