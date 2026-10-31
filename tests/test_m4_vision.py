@@ -480,6 +480,22 @@ def test_m4_live_merger_joins_and_newest_wins():
     assert len(m._partial) <= 32
 
 
+def test_m4_live_merger_waits_for_both_callbacks():
+    m = LiveMerger()
+
+    def finish_frame():
+        m.store(42, "face", "face")
+        m.store(42, "gesture", "gesture")
+
+    timer = threading.Timer(0.02, finish_frame)
+    timer.start()
+    try:
+        got = m.wait(42, timeout=1)
+    finally:
+        timer.join()
+    assert got == FrameObs(42, "face", "gesture")
+
+
 # ---------------------------------------------------------------- real models (skipped when absent)
 _have_models = (ASSETS / "face_landmarker.task").is_file() and (ASSETS / "gesture_recognizer.task").is_file()
 
@@ -491,6 +507,19 @@ def test_m4_real_models_blank_image_detects_nothing():
     b = MediaPipeBackend(ASSETS / "face_landmarker.task", ASSETS / "gesture_recognizer.task", "image")
     try:
         o = b.analyze(np.zeros((240, 320, 3), np.uint8), 5)
+        assert o.face is None and (o.gesture is None or o.gesture.label == "None" or o.gesture.score < 0.6)
+    finally:
+        b.close()
+
+
+@pytest.mark.skipif(not _have_models, reason="MediaPipe .task files not in assets/ (see README); real-model test skipped")
+def test_m4_real_models_live_stream_returns_submitted_frame():
+    from services.vision import MediaPipeBackend
+
+    b = MediaPipeBackend(ASSETS / "face_landmarker.task", ASSETS / "gesture_recognizer.task", "live")
+    try:
+        o = b.analyze(np.zeros((240, 320, 3), np.uint8), 123)
+        assert o is not None and o.timestamp_ms == 123
         assert o.face is None and (o.gesture is None or o.gesture.label == "None" or o.gesture.score < 0.6)
     finally:
         b.close()

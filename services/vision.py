@@ -253,7 +253,7 @@ class LiveMerger:
     """Joins the face and gesture callbacks of the same frame; newest completed frame wins."""
 
     def __init__(self) -> None:
-        self._lock = threading.Lock()
+        self._lock = threading.Condition()
         self._partial: dict[int, dict[str, Any]] = {}
         self._ready: Optional[FrameObs] = None
 
@@ -266,11 +266,22 @@ class LiveMerger:
                     self._ready = FrameObs(ts, part["face"], part["gesture"])
                 for old in [k for k in self._partial if k <= ts]:
                     del self._partial[old]
+                self._lock.notify_all()
             while len(self._partial) > 32:
                 del self._partial[min(self._partial)]
 
     def take(self) -> Optional[FrameObs]:
         with self._lock:
+            ready, self._ready = self._ready, None
+            return ready
+
+    def wait(self, timestamp_ms: int, timeout: float = 1.0) -> Optional[FrameObs]:
+        """Wait off the event loop for both tasks, including the last submitted frame."""
+        with self._lock:
+            self._lock.wait_for(
+                lambda: self._ready is not None and self._ready.timestamp_ms >= timestamp_ms,
+                timeout=timeout,
+            )
             ready, self._ready = self._ready, None
             return ready
 
@@ -324,7 +335,7 @@ class MediaPipeBackend:
         self._last_ts = ts
         self._face.detect_async(image, ts)
         self._gest.recognize_async(image, ts)
-        return self._merger.take()
+        return self._merger.wait(ts)
 
     def close(self) -> None:
         for task in (self._face, self._gest):

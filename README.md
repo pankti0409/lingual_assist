@@ -31,12 +31,16 @@ Missing keys never crash startup: the feature that needs one returns `503 not_co
 All tunables (thresholds, windows, model ids) are in `config.py` and overridable by environment variable.
 
 ### MediaPipe models (needed for vision)
-Download the two official model files into `assets/` (see the MediaPipe Tasks docs for Face Landmarker and
-Gesture Recognizer; at the time of writing):
+Install the two versioned model bundles published by Google and record their source URLs, sizes, and SHA-256 hashes:
+```
+python scripts/download_vision_models.py
+```
+The installer uses the official model URLs referenced by MediaPipe's GitHub documentation:
 ```
 assets/face_landmarker.task        https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task
 assets/gesture_recognizer.task     https://storage.googleapis.com/mediapipe-models/gesture_recognizer/gesture_recognizer/float16/1/gesture_recognizer.task
 ```
+The `.task` binaries stay untracked; `assets/models.json` is the reproducible provenance manifest.
 Without them the vision endpoints return `503 not_configured` and the real-model test is skipped.
 `GET /health` shows which services, models and assets are configured (booleans only, never key values).
 
