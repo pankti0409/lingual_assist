@@ -91,18 +91,18 @@
   --gutter: clamp(1rem, 0.6rem + 2vw, 2.5rem);
   --radius-xs: 8px;
   --radius-sm: 12px;
-  --radius-md: 18px;
-  --radius-lg: 26px;
+  --radius-md: 14px;
+  --radius-lg: 16px;
   --radius-pill: 999px;
   --target: 52px;
   --target-lg: 64px;
   --tile: 9.5rem;
   --content-max: 82rem;
-  --rail: 15.5rem;
+  --rail: 14rem;
 
   /* depth: a solid "press" ledge, never a glow */
-  --ledge: 0 3px 0 var(--ink);
-  --ledge-soft: 0 2px 0 var(--border);
+  --ledge: 0 3px 8px rgba(52, 75, 80, 0.08);
+  --ledge-soft: 0 2px 6px rgba(52, 75, 80, 0.04);
   --lift: 0 1px 0 rgba(52, 75, 80, 0.05), 0 14px 28px -22px rgba(52, 75, 80, 0.45);
 
   /* motion (see src/lib/motion.ts for the JS mirror) */
