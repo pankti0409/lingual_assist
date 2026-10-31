@@ -21,3 +21,8 @@ uvicorn main:app --reload
 pytest -v          # offline
 pytest -m live     # live tests (need keys)
 ```
+
+## Vision notes
+- Send **un-mirrored** frames. Mirroring swaps left/right blendshapes and handedness; the optional `mirrored` flag is only echoed back, never corrected for.
+- Put `face_landmarker.task` and `gesture_recognizer.task` (official MediaPipe models) in `assets/`. Without them vision endpoints return `503 not_configured`.
+- Raw frames are never stored or logged; only derived cues are kept.
