@@ -1,0 +1,161 @@
+/* Central design tokens — "Playful Serenity".
+ *
+ * Solid colours only: no gradients, glows or glass. Colour is always paired with an icon or a word.
+ *
+ * Contrast notes (WCAG 2.2 AA):
+ *   ink        #344B50 on ivory #F8F8F1  ~8.6:1   body text
+ *   ink-soft   #5E6F72 on ivory          ~4.9:1   small secondary text (derived: the supplied
+ *                                                 secondary grey #718184 is ~3.8:1, so it is used
+ *                                                 only for large text, icons and borders)
+ *   teal-ink   #2F6B6F on ivory          ~5.7:1   links and small teal text (derived from deep teal)
+ *   white on deep teal #397F83           ~4.6:1   primary buttons
+ *   ink on butter / peach / lilac / pistachio / light teal  >= 6:1
+ */
+:root {
+  /* palette (supplied) */
+  --ivory: #f8f8f1;
+  --butter-cream: #fff9e8;
+  --white: #ffffff;
+  --teal-pale: #e2f1ef;
+  --teal-light: #bfdcd8;
+  --teal-soft: #83bdb7;
+  --teal-deep: #397f83;
+  --butter: #f7e9b8;
+  --peach: #f3dccf;
+  --lilac: #e5dff2;
+  --pistachio: #dce8ce;
+  --ink: #344b50;
+  --grey: #718184;
+  --border: #e8e6dd;
+
+  /* derived, same hue families */
+  --ink-soft: #5e6f72;
+  --teal-ink: #2f6b6f;
+  --teal-deeper: #2c6669;
+  --butter-strong: #efd98c;
+  --peach-strong: #e9c3ad;
+  --lilac-strong: #cfc5e6;
+  --pistachio-strong: #bfd4a8;
+  --danger-ink: #9a3f2c; /* warm red-brown, ~6.6:1 on ivory; only for destructive actions and errors */
+  --danger-soft: #f6e0d8;
+
+  /* semantic */
+  --bg: var(--ivory);
+  --bg-warm: var(--butter-cream);
+  --surface: var(--white);
+  --surface-teal: var(--teal-pale);
+  --text: var(--ink);
+  --text-muted: var(--ink-soft);
+  --text-faint: var(--grey);
+  --line: var(--border);
+  --line-strong: var(--ink);
+  --action: var(--teal-deep);
+  --action-hover: var(--teal-deeper);
+  --action-text: var(--white);
+  --focus-ring: var(--ink);
+  --focus-halo: var(--butter);
+
+  /* message states (always also labelled in words + icon) */
+  --state-suggested: var(--lilac);
+  --state-suggested-line: var(--lilac-strong);
+  --state-edited: var(--peach);
+  --state-edited-line: var(--peach-strong);
+  --state-confirmed: var(--pistachio);
+  --state-confirmed-line: var(--pistachio-strong);
+  --state-spoken: var(--teal-light);
+
+  /* type */
+  --font-display: "Fraunces Variable", "Noto Sans Devanagari", Georgia, "Times New Roman", serif;
+  --font-body: "Atkinson Hyperlegible", "Noto Sans Devanagari", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-scale: 1;
+  --text-xs: 0.875rem; /* 14px: never smaller */
+  --text-sm: 0.9375rem;
+  --text-md: 1.0625rem;
+  --text-lg: 1.25rem;
+  --text-xl: clamp(1.45rem, 1.2rem + 0.9vw, 1.85rem);
+  --text-2xl: clamp(1.9rem, 1.4rem + 1.8vw, 2.85rem);
+  --text-3xl: clamp(2.4rem, 1.6rem + 3vw, 4.25rem);
+  --leading-tight: 1.08;
+  --leading-snug: 1.25;
+  --leading-body: 1.6;
+
+  /* space & shape */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+  --space-6: 2rem;
+  --space-7: 3rem;
+  --space-8: 4.5rem;
+  --gutter: clamp(1rem, 0.6rem + 2vw, 2.5rem);
+  --radius-xs: 8px;
+  --radius-sm: 12px;
+  --radius-md: 18px;
+  --radius-lg: 26px;
+  --radius-pill: 999px;
+  --target: 48px;
+  --target-lg: 60px;
+  --tile: 9.5rem;
+  --content-max: 82rem;
+  --rail: 15.5rem;
+
+  /* depth: a solid "press" ledge, never a glow */
+  --ledge: 0 3px 0 var(--ink);
+  --ledge-soft: 0 2px 0 var(--border);
+  --lift: 0 1px 0 rgba(52, 75, 80, 0.05), 0 14px 28px -22px rgba(52, 75, 80, 0.45);
+
+  /* motion (see src/lib/motion.ts for the JS mirror) */
+  --dur-press: 140ms;
+  --dur-popover: 180ms;
+  --dur-dialog: 260ms;
+  --dur-route: 380ms;
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-in: cubic-bezier(0.55, 0, 1, 0.45);
+  --ease-spring: cubic-bezier(0.34, 1.4, 0.64, 1);
+}
+
+/* ---- personal preferences (set on <html> by PreferencesProvider) ---- */
+:root[data-targets="large"] {
+  --target: 58px;
+  --target-lg: 70px;
+  --tile: 11rem;
+}
+:root[data-targets="xl"] {
+  --target: 68px;
+  --target-lg: 82px;
+  --tile: 12.5rem;
+}
+
+:root[data-contrast="high"] {
+  --bg: #ffffff;
+  --bg-warm: #ffffff;
+  --surface-teal: #ffffff;
+  --text: #13252a;
+  --text-muted: #24383d;
+  --text-faint: #24383d;
+  --line: #344b50;
+  --action: #1f5558;
+  --action-hover: #13393b;
+  --teal-ink: #1f5558;
+  --focus-ring: #000000;
+  --state-suggested-line: #344b50;
+  --state-edited-line: #344b50;
+  --state-confirmed-line: #344b50;
+}
+
+:root[data-motion="reduced"] {
+  --dur-press: 0ms;
+  --dur-popover: 0ms;
+  --dur-dialog: 0ms;
+  --dur-route: 0ms;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root:not([data-motion="full"]) {
+    --dur-press: 0ms;
+    --dur-popover: 0ms;
+    --dur-dialog: 0ms;
+    --dur-route: 0ms;
+  }
+}
