@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 
 from clock import Clock, SystemClock
 from config import Settings, load_settings
@@ -31,6 +32,14 @@ def create_app(settings: Settings | None = None, clock: Clock | None = None) -> 
     app.state.speaklog = SpeakLog()
     app.state.sessions.register_cleanup(app.state.speaklog.close_session)
     install_error_handlers(app)
+    if app.state.settings.cors_origins:  # default none
+        app.add_middleware(
+            CORSMiddleware,
+            allow_origins=app.state.settings.cors_origins,
+            allow_methods=["*"],
+            allow_headers=["*"],
+            expose_headers=["X-Request-ID", "X-First-Audio-Ms", "X-Subtitle-Text", "X-Voice-Persona", "X-Confirmed-Id", "X-TTS-Model"],
+        )
     app.add_middleware(RequestIdMiddleware)
     app.include_router(health.router)
     app.include_router(sessions.router)

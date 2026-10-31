@@ -1,20 +1,9 @@
-"""Shared Pydantic models (M0: error model and /health)."""
+"""Shared Pydantic models: /health and the cross-module contracts."""
 from __future__ import annotations
 
-from typing import Any, Optional
+from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
-
-
-class ErrorBody(BaseModel):
-    code: str
-    message: str
-    request_id: str
-    details: Optional[Any] = None
-
-
-class ErrorResponse(BaseModel):
-    error: ErrorBody
 
 
 class ServicesStatus(BaseModel):
@@ -43,8 +32,6 @@ class HealthResponse(BaseModel):
 
 
 # ---- Shared contracts (MODULE_SPECS "Shared contracts") ----
-from typing import Literal  # noqa: E402
-
 Speaker = Literal["patient", "partner"]
 Language = Literal["en", "hi", "mixed"]
 TurnSource = Literal["scribe_batch", "scribe_realtime", "typed"]

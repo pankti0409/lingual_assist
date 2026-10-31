@@ -7,7 +7,7 @@ from __future__ import annotations
 import json
 import logging
 from dataclasses import dataclass
-from typing import Any, Optional
+from typing import Optional
 
 import anyio.to_thread
 from fastapi import FastAPI

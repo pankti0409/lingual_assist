@@ -3,7 +3,6 @@ from __future__ import annotations
 
 from typing import Callable
 
-from fastapi import Request
 from starlette.requests import HTTPConnection
 
 from errors import AppError

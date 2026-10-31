@@ -103,13 +103,13 @@ class FakeSynth:
 
 
 class Rig:
-    def __init__(self, tmp_path):
+    def __init__(self, tmp_path, **env):
         self.clock = FakeClock(0)
         self.transcriber = FakeTranscriber(self.clock)
         self.backend = FakeBackend(self.clock)
         self.llm = FakeLLM(self.clock)
         self.synth = FakeSynth(self.clock)
-        settings = load_settings({"LOGS_DIR": str(tmp_path / "logs")}, use_dotenv=False)
+        settings = load_settings({"LOGS_DIR": str(tmp_path / "logs"), **env}, use_dotenv=False)
         self.app = create_app(settings, clock=self.clock)
         o = self.app.dependency_overrides
         o[get_transcriber] = lambda: self.transcriber

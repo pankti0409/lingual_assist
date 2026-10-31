@@ -48,6 +48,7 @@ class Settings(BaseModel):
     assets_dir: Path = BASE_DIR / "assets"
     logs_dir: Path = BASE_DIR / "logs"
     scenarios_path: Path = BASE_DIR / "evaluation" / "scenarios.json"
+    cors_origins: list[str] = []  # default none: no CORS headers are sent
 
     def __repr__(self) -> str:  # keep secrets out of accidental logging
         return "Settings(<redacted>)"
@@ -104,6 +105,8 @@ def load_settings(env: Mapping[str, str] | None = None, *, use_dotenv: bool = Tr
             raise SettingsError(
                 f"Invalid value for environment variable {name}: expected {cast.__name__}"
             ) from exc
+    origins = env.get("CORS_ORIGINS", "")
+    values["cors_origins"] = [o.strip() for o in origins.split(",") if o.strip()]
     settings = Settings(**values)  # type: ignore[arg-type]
     if not 4 <= settings.history_window_turns <= 6:
         raise SettingsError("Invalid value for environment variable HISTORY_WINDOW_TURNS: allowed 4-6")
