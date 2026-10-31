@@ -189,7 +189,7 @@ export function ConversationPage() {
           }
           action={<Button variant="quiet" onClick={ctl.clearError}>Dismiss</Button>}
         >
-          {ctl.error.message} {ctl.error.code !== "consent_required" && "Your draft is kept."}
+          {/[.!?]$/.test(ctl.error.message) ? ctl.error.message : `${ctl.error.message}.`} {ctl.error.code !== "consent_required" && "Your draft is kept."}
         </Notice>
       )}
 

@@ -268,6 +268,14 @@ export function createHttpServices(baseUrl: string): Services {
         listeners.add(cb);
         return () => listeners.delete(cb);
       },
+      async health() {
+        const h = await json("/health");
+        return {
+          suggestions: !!h.services?.groq,
+          speech: !!h.services?.elevenlabs,
+          vision: !!(h.assets?.face_landmarker && h.assets?.gesture_recognizer),
+        };
+      },
       async reconnect() {
         setConnection("reconnecting");
         try {

@@ -458,3 +458,48 @@
     padding-top: 1rem;
   }
 }
+
+/* ------------------------------------------------------------------ service status (HTTP mode) */
+.service-strip {
+  max-width: var(--content-max);
+  margin: 0.85rem auto 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem 0.6rem;
+  padding: 0.6rem 0.9rem;
+  border-radius: var(--radius-md);
+  background: var(--pistachio);
+  border: 1px solid var(--pistachio-strong);
+  font-size: var(--text-sm);
+}
+
+.service-strip--partial {
+  background: var(--butter-cream);
+  border-color: var(--butter-strong);
+}
+
+.service-strip--down {
+  background: var(--danger-soft);
+  border-color: var(--danger-ink);
+}
+
+.service-strip--down .btn {
+  margin-left: auto;
+}
+
+.service-strip__list {
+  flex-basis: 100%;
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem 1.25rem;
+  padding-left: 1.6rem;
+  color: var(--text-muted);
+}
+
+.service-strip__list li {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}

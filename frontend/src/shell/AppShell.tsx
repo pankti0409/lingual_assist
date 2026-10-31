@@ -25,6 +25,7 @@ import { routeVariants, useCalm } from "@/lib/motion";
 import { usePreferences } from "@/state/preferences";
 import { useSession } from "@/state/session";
 import { ConnectionBanner } from "./ConnectionBanner";
+import { ServiceStatus } from "./ServiceStatus";
 
 type To = "/" | "/conversation" | "/expressions" | "/voice" | "/journey" | "/settings" | "/gestures" | "/setup" | "/review" | "/evaluation" | "/screens";
 interface NavItem {
@@ -221,6 +222,7 @@ export function AppShell() {
             <span>Services, devices and results are simulated. Nothing is recorded, uploaded or stored.</span>
           </div>
         )}
+        {services.mode === "http" && <ServiceStatus />}
         {state.status === "active" && <ConnectionBanner />}
         <motion.main
           key={pathname}

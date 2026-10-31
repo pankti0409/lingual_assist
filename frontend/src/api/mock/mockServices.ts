@@ -476,6 +476,7 @@ export function createMockServices(opts: MockOptions = {}): Services {
         listeners.add(cb);
         return () => listeners.delete(cb);
       },
+      health: async () => ({ suggestions: true, speech: true, vision: true }),
       async reconnect() {
         setConnection("reconnecting");
         await wait(Math.max(delayMs, 600));

@@ -72,11 +72,23 @@ export interface EvaluationService {
   csv(): Promise<string>;
 }
 
+/** What the connected service can do right now (from GET /health). */
+export interface ServiceHealth {
+  /** Suggested replies (LLM key configured). */
+  suggestions: boolean;
+  /** Speech-to-text and voice output (ElevenLabs key configured). */
+  speech: boolean;
+  /** Camera cues (vision model files present). */
+  vision: boolean;
+}
+
 export interface ConnectionService {
   /** Health of the backend link; drives disconnected/reconnecting banners. */
   status(): "online" | "disconnected" | "reconnecting";
   subscribe(cb: (s: "online" | "disconnected" | "reconnecting") => void): () => void;
   reconnect(): Promise<void>;
+  /** Which capabilities the service has configured. */
+  health(): Promise<ServiceHealth>;
 }
 
 export type VoiceSimulation = "normal" | "unavailable" | "provider_error";
