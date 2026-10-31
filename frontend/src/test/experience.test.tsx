@@ -36,7 +36,7 @@ describe("quick expressions", () => {
     expect(within(dialog).getByText(/start a session to say this aloud/i)).toBeInTheDocument();
     expect(within(dialog).queryByRole("button", { name: /confirm these exact words/i })).toBeNull();
     await user.click(within(dialog).getByRole("button", { name: /show large/i }));
-    expect(within(dialog).getByText("Hello!", { selector: ".subtitle--huge" })).toBeInTheDocument();
+    expect(await within(dialog).findByText("Hello!", { selector: ".subtitle--huge" })).toBeInTheDocument();
   });
 
   it("emergency tiles say clearly that they do not call anyone", async () => {
@@ -112,7 +112,7 @@ describe("journey", () => {
     await user.click(within(screen.getByRole("navigation", { name: "Main" })).getByRole("link", { name: "Journey" }));
     expect(await screen.findByRole("button", { name: /milestone 1 of 6: set up a session — reached/i })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /milestone 2 of 6: say a first message — not yet/i })).toBeInTheDocument();
-    expect(screen.queryByText(/streak|leaderboard|points/i)).toBeNull();
+    expect(screen.getByText(/No streaks, no scores, nothing to keep up with/i)).toBeInTheDocument();
   });
 });
 
@@ -124,7 +124,7 @@ describe("voice studio", () => {
     await user.click(screen.getByRole("button", { name: "Brisk" }));
     expect(screen.getByRole("slider", { name: /speaking speed/i })).toHaveValue("1.2");
     await user.click(screen.getByRole("button", { name: /save settings/i }));
-    expect(await screen.findByText(/saved on this device/i)).toBeInTheDocument();
+    expect(await screen.findByText("Saved on this device.")).toBeInTheDocument();
     expect(window.localStorage.getItem("lingual-assist:preferences:v1")).toContain('"rate":1.2');
   });
 });

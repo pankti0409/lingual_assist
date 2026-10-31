@@ -52,6 +52,11 @@ export function useVoicePreview() {
           setError(e instanceof ApiError ? e.message : "The preview could not be played.");
           return;
         }
+        if (services.mode !== "mock" && playbackMode(null) !== "browser_voice") {
+          setLoading(null);
+          setError("No voice preview is available on this device. Your text is still available to read.");
+          return;
+        }
         src = playbackMode(null) === "browser_voice" ? "device" : "simulated";
       }
       setLoading(null);

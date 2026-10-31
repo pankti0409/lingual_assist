@@ -134,12 +134,12 @@ export function ConversationPage() {
           <EmptyStateArt className="state-block__art" />
           <div>
             <h2 id="no-session" className="h2">No active session</h2>
-            <p className="lede">Set up a session to choose a language and each consent. Or try the sample with typing only — no microphone, camera or consent needed.</p>
+            <p className="lede">Choose your language and how you want to communicate. Typing works without microphone or camera access.</p>
             <div className="actions">
               <ButtonLink to="/setup" icon={<Settings2 size={20} />}>Set up a session</ButtonLink>
-              <Button variant="secondary" icon={<Keyboard size={20} />} onClick={() => void startSample()} loading={starting}>
+              {services.mode === "mock" && <Button variant="secondary" icon={<Keyboard size={20} />} onClick={() => void startSample()} loading={starting}>
                 Try the sample by typing
-              </Button>
+              </Button>}
             </div>
           </div>
         </section>

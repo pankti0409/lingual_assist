@@ -7,6 +7,7 @@ import "@fontsource/noto-sans-devanagari/devanagari-700.css";
 import "./styles/tokens.css";
 import "./styles/global.css";
 import "./styles/pages.css";
+import "./styles/editorial.css";
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { App } from "./App";

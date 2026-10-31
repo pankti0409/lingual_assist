@@ -1979,6 +1979,32 @@
   transform: translate(-50%, -50%);
 }
 
+@media (max-width: 600px) {
+  .trail__map {
+    width: 100%;
+    min-height: 0;
+    aspect-ratio: auto;
+    padding: 1.5rem 1rem;
+  }
+
+  .trail__art {
+    display: none;
+  }
+
+  .trail__stops {
+    position: relative;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1.75rem 0.5rem;
+    justify-items: center;
+  }
+
+  .trail__stops li {
+    position: static;
+    transform: none;
+  }
+}
+
 .stop {
   position: relative;
   display: grid;

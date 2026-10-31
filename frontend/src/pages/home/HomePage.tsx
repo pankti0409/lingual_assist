@@ -1,4 +1,5 @@
 import { Link } from "@tanstack/react-router";
+import { useServices } from "@/api/ServicesProvider";
 import { ArrowRight, AudioLines, Check, Gauge, Hand, Keyboard, LayoutGrid, MessageCircle, Play, Plus, Square, Type } from "lucide-react";
 import { motion } from "motion/react";
 import { useMemo, useState } from "react";
@@ -44,25 +45,26 @@ function Section({ className, children, delay = 0, label }: { className: string;
 }
 
 function StartCard() {
+  const services = useServices();
   const { state } = useSession();
   const active = state.status === "active";
   return (
     <div className="start-card">
       <div className="start-card__copy">
         <p className="start-card__eyebrow">{active ? "Your session is open" : "Ready when you are"}</p>
-        <h2 id="start-h" className="start-card__title">{active ? "Carry on the conversation" : "Start communicating"}</h2>
+        <h2 id="start-h" className="start-card__title">{active ? "Carry on the conversation" : <>Your words.<br /><em>At your pace.</em></>}</h2>
         <p className="start-card__text">
           {active
             ? `${state.turns.length} turn${state.turns.length === 1 ? "" : "s"} so far. Pick up where you left off.`
-            : "Speak, type, gesture — or mix them. You choose every word before it’s said."}
+            : "A little space to find the words. Type or speak, review your choices, and say exactly what you mean."}
         </p>
         <div className="actions">
           {active ? (
             <ButtonLink to="/conversation" variant="confirm" size="lg" iconEnd={<ArrowRight size={22} />}>Open Talk</ButtonLink>
           ) : (
             <>
-              <ButtonLink to="/setup" variant="confirm" size="lg" iconEnd={<ArrowRight size={22} />}>Start communicating</ButtonLink>
-              <ButtonLink to="/conversation" search={{ scenario: "water" }} variant="ghost-light" icon={<Keyboard size={20} />}>Try a sample</ButtonLink>
+              <ButtonLink to="/setup" size="lg" iconEnd={<ArrowRight size={22} />}>Start communicating</ButtonLink>
+              {services.mode === "mock" && <ButtonLink to="/conversation" search={{ scenario: "water" }} variant="secondary" icon={<Keyboard size={20} />}>Try a sample</ButtonLink>}
             </>
           )}
         </div>
