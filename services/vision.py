@@ -144,23 +144,31 @@ class CueTracker:
 
     def current(self, now_ms: int, gesture_map: dict[str, str]) -> Optional[Cue]:
         """Cue as of the latest frame; None if there is none or it is older than CUE_MAX_AGE_MS."""
-        if not self._frames:
+        return self._cue_from(list(self._frames), now_ms, gesture_map)
+
+    def cue_at(self, ts_ms: int, gesture_map: dict[str, str]) -> Optional[Cue]:
+        """Cue as of `ts_ms` using only frames at or before it (for evidence packets, M5)."""
+        return self._cue_from([f for f in self._frames if f.timestamp_ms <= ts_ms], ts_ms, gesture_map)
+
+    def _cue_from(self, frames: list[FrameObs], now_ms: int, gesture_map: dict[str, str]) -> Optional[Cue]:
+        if not frames:
             return None
-        last = self._frames[-1]
+        last = frames[-1]
         if now_ms - last.timestamp_ms > self._s.cue_max_age_ms:
             return None
-        return self._cue(last, gesture_map)
+        return self._cue(frames, last, gesture_map)
 
-    def _window(self, ms: int) -> list[FrameObs]:
-        t0 = self._frames[-1].timestamp_ms - ms
-        return [f for f in self._frames if f.timestamp_ms >= t0]
+    @staticmethod
+    def _window(frames: list[FrameObs], ms: int) -> list[FrameObs]:
+        t0 = frames[-1].timestamp_ms - ms
+        return [f for f in frames if f.timestamp_ms >= t0]
 
-    def _cue(self, last: FrameObs, gesture_map: dict[str, str]) -> Cue:
-        face_frames = [f.face for f in self._window(self._s.mouth_window_ms) if f.face and f.face.mouth]
+    def _cue(self, frames: list[FrameObs], last: FrameObs, gesture_map: dict[str, str]) -> Cue:
+        face_frames = [f.face for f in self._window(frames, self._s.mouth_window_ms) if f.face and f.face.mouth]
         active, score = mouth_activity([_mouth_signal(f.mouth) for f in face_frames])
         pitches = [
             f.face.pitch_deg
-            for f in self._window(self._s.head_nod_window_ms)
+            for f in self._window(frames, self._s.head_nod_window_ms)
             if f.face and f.face.pitch_deg is not None
         ]
         nod = len(pitches) >= MIN_WINDOW_FRAMES and count_swings(pitches, NOD_MIN_DEG) >= NOD_MIN_SWINGS
@@ -172,15 +180,15 @@ class CueTracker:
                 mouth_score=score if last.face is not None else 0.0,
                 head_nod=nod and last.face is not None,
             ),
-            gesture=self._gesture(last, gesture_map),
+            gesture=self._gesture(frames, last, gesture_map),
         )
 
-    def _gesture(self, last: FrameObs, gesture_map: dict[str, str]) -> Optional[GestureCue]:
+    def _gesture(self, frames: list[FrameObs], last: FrameObs, gesture_map: dict[str, str]) -> Optional[GestureCue]:
         g = last.gesture
         s = self._s
         if g is None or g.label == "None" or g.score < s.gesture_min_score:
             return None
-        tail = list(self._frames)[-s.gesture_stability_frames:]
+        tail = frames[-s.gesture_stability_frames:]
         stable = len(tail) == s.gesture_stability_frames and all(
             f.gesture is not None
             and f.gesture.label == g.label

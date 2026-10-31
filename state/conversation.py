@@ -49,5 +49,19 @@ class ConversationState:
             return []
         return [{"speaker": t.speaker, "text": t.text} for t in turns[-n:]]
 
+    def get(self, turn_id: str) -> Turn | None:
+        return next((t for t in self._turns if t.turn_id == turn_id), None)
+
+    def latest(self, speaker: Speaker) -> Turn | None:
+        return next((t for t in reversed(self._turns) if t.speaker == speaker), None)
+
+    def context_before(self, turn_id: str, n: int | None = None) -> list[dict[str, str]]:
+        """Up to n turns strictly BEFORE `turn_id`, oldest first, in blueprint shape."""
+        n = self.window if n is None else n
+        idx = next((i for i, t in enumerate(self._turns) if t.turn_id == turn_id), None)
+        if idx is None or n <= 0:
+            return []
+        return [{"speaker": t.speaker, "text": t.text} for t in self._turns[max(0, idx - n):idx]]
+
     def clear(self) -> None:
         self._turns.clear()
