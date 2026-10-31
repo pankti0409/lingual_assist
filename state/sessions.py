@@ -9,6 +9,7 @@ from datetime import datetime, timezone
 from typing import Callable, Literal, Optional
 
 from clock import Clock
+from state.conversation import ConversationState
 
 logger = logging.getLogger("ps16.sessions")
 
@@ -48,6 +49,7 @@ class Session:
     voice_mode: VoiceMode
     clock: SessionClock
     created_at: str
+    conversation: ConversationState
     consent: ConsentRecord = field(default_factory=ConsentRecord)
     lock: asyncio.Lock = field(default_factory=asyncio.Lock)
 
@@ -56,8 +58,9 @@ CleanupHook = Callable[[Session], None]
 
 
 class SessionStore:
-    def __init__(self, clock: Clock) -> None:
+    def __init__(self, clock: Clock, history_window: int = 6) -> None:
         self._clock = clock
+        self._history_window = history_window
         self._sessions: dict[str, Session] = {}
         self._cleanup_hooks: list[CleanupHook] = []
 
@@ -66,11 +69,13 @@ class SessionStore:
         self._cleanup_hooks.append(hook)
 
     def create(self, language: Language = "en", voice_mode: VoiceMode = "none") -> Session:
+        clock = SessionClock(self._clock)
         session = Session(
             session_id=uuid.uuid4().hex,
             language=language,
             voice_mode=voice_mode,
-            clock=SessionClock(self._clock),
+            clock=clock,
+            conversation=ConversationState(clock, self._history_window),
             created_at=datetime.now(timezone.utc).isoformat(),
         )
         self._sessions[session.session_id] = session
@@ -83,6 +88,7 @@ class SessionStore:
         session = self._sessions.pop(session_id, None)
         if session is None:
             return False
+        session.conversation.clear()
         for hook in self._cleanup_hooks:
             try:
                 hook(session)

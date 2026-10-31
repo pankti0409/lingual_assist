@@ -40,3 +40,20 @@ class HealthResponse(BaseModel):
     services: ServicesStatus
     models: ModelsInfo
     assets: AssetsStatus
+
+
+# ---- Shared contracts (MODULE_SPECS "Shared contracts") ----
+from typing import Literal  # noqa: E402
+
+Speaker = Literal["patient", "partner"]
+Language = Literal["en", "hi", "mixed"]
+TurnSource = Literal["scribe_batch", "scribe_realtime", "typed"]
+
+
+class Turn(BaseModel):
+    turn_id: str
+    speaker: Speaker
+    text: str
+    language: Language
+    timestamp_ms: int
+    source: TurnSource
