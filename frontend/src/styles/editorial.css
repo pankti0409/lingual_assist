@@ -81,8 +81,9 @@ html { scrollbar-color: var(--teal-soft) var(--bg); }
 .sheet-confirmed { background: var(--teal-pale); border: 1px solid var(--line); }
 @media (min-width: 1200px) {
   .home { display: grid; grid-template-columns: minmax(0, 1.65fr) minmax(18rem, 1fr); gap: 2rem; }
-  .home-top { grid-column: 1; }
-  .home-quick { grid-column: 2; margin-top: 0; align-self: stretch; }
+  .home-top { grid-column: 1; grid-row: 1; }
+  .home-quick { grid-column: 2; grid-row: 1; margin-top: 0; align-self: stretch; }
+  .shortcuts { grid-column: 1 / -1; grid-row: 2; margin-top: 0; }
   .home-mosaic, .discover { grid-column: 1 / -1; margin-top: .5rem; }
   .start-card { grid-template-columns: minmax(0, 1fr) minmax(10rem, .65fr); }
   .start-card__copy { padding: 1.75rem; }
