@@ -12,6 +12,7 @@ from pydantic import BaseModel, ConfigDict, field_validator
 from clock import Timer
 from errors import AppError
 from services.consent import ensure_consent, get_session
+from services.pipeline import record_speak
 from services.tts import SpeechSynthesizer, get_synthesizer
 from state.sessions import Session
 from state.speaklog import SpeakRecord
@@ -87,6 +88,7 @@ async def speak(
         raise AppError(404, "not_found", "Confirmed message not found")
     voice_id, persona = _voice_for(session, state.settings.default_voice_id)
 
+    speak_received_ms = session.clock.now_ms()
     timer = Timer(state.clock)
     agen = synth.stream(msg.text, voice_id)
     first = b""
@@ -104,6 +106,7 @@ async def speak(
         raise AppError(502, "upstream_error", "Voice provider returned no audio")
     first_ms = max(0, timer.elapsed_ms())
 
+    await record_speak(request.app, session, msg.proposal_id, speak_received_ms, session.clock.now_ms(), first_ms)
     state.speaklog.add(
         session.session_id,
         SpeakRecord(msg.confirmed_id, session.clock.now_ms(), first_ms, persona),

@@ -8,8 +8,9 @@ from config import Settings, load_settings
 from errors import install_error_handlers
 from logging_setup import configure_logging
 from middleware import RequestIdMiddleware
-from routers import evidence, fusion, health, history, proposals, scribe, sessions, vision, voice
+from routers import evidence, fusion, health, history, metrics, proposals, scribe, sessions, turns, vision, voice
 from services.vision import VisionRegistry
+from state.metrics import MetricsStore
 from state.proposals import ProposalStore
 from state.sessions import SessionStore
 from state.speaklog import SpeakLog
@@ -25,6 +26,8 @@ def create_app(settings: Settings | None = None, clock: Clock | None = None) -> 
     app.state.sessions.register_cleanup(app.state.vision.close_session)
     app.state.proposals = ProposalStore()
     app.state.sessions.register_cleanup(app.state.proposals.close_session)
+    app.state.metrics = MetricsStore()
+    app.state.sessions.register_cleanup(app.state.metrics.close_session)
     app.state.speaklog = SpeakLog()
     app.state.sessions.register_cleanup(app.state.speaklog.close_session)
     install_error_handlers(app)
@@ -38,6 +41,8 @@ def create_app(settings: Settings | None = None, clock: Clock | None = None) -> 
     app.include_router(fusion.router)
     app.include_router(proposals.router)
     app.include_router(voice.router)
+    app.include_router(turns.router)
+    app.include_router(metrics.router)
     return app
 
 

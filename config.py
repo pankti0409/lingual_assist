@@ -46,6 +46,7 @@ class Settings(BaseModel):
     llm_timeout_s: float = 10
 
     assets_dir: Path = BASE_DIR / "assets"
+    logs_dir: Path = BASE_DIR / "logs"
 
     def __repr__(self) -> str:  # keep secrets out of accidental logging
         return "Settings(<redacted>)"
@@ -76,6 +77,7 @@ _ENV_FIELDS: dict[str, tuple[str, type]] = {
     "LLM_TEMPERATURE": ("llm_temperature", float),
     "LLM_TIMEOUT_S": ("llm_timeout_s", float),
     "ASSETS_DIR": ("assets_dir", Path),
+    "LOGS_DIR": ("logs_dir", Path),
 }
 
 

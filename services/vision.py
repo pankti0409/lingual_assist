@@ -359,6 +359,14 @@ class VisionSession:
     backends: dict[str, VisionBackend] = field(default_factory=dict)
     lock: asyncio.Lock = field(default_factory=asyncio.Lock)
     dropped_frames: int = 0
+    frame_timings: deque = field(default_factory=lambda: deque(maxlen=64))  # (finished_ms, duration_ms)
+
+    def vision_ms_before(self, ts_ms: int) -> Optional[int]:
+        """Processing time (decode + landmarks) of the latest frame finished at or before `ts_ms`."""
+        for finished, took in reversed(self.frame_timings):
+            if finished <= ts_ms:
+                return took
+        return None
 
 
 class VisionRegistry:
@@ -412,7 +420,8 @@ async def process_frame(
     timestamp_ms: Optional[int] = None,
 ) -> Optional[Cue]:
     """Decode one frame, run the backend off the event loop, update the tracker, return the cue."""
-    ts = session.clock.now_ms() if timestamp_ms is None else timestamp_ms
+    started = session.clock.now_ms()
+    ts = started if timestamp_ms is None else timestamp_ms
     rgb = decode_frame(data)
     async with vs.lock:
         backend = vs.backends.get(mode)
@@ -422,4 +431,6 @@ async def process_frame(
         obs = await anyio.to_thread.run_sync(backend.analyze, rgb, ts)
         if obs is not None:
             vs.tracker.observe(obs)
+        finished = session.clock.now_ms()
+        vs.frame_timings.append((finished, max(0, finished - started)))
         return vs.tracker.current(ts, vs.gesture_map)

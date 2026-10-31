@@ -9,6 +9,7 @@ from pydantic import BaseModel, ConfigDict, Field, StrictInt, field_validator
 from errors import AppError
 from services.confirmation import ActionResult, ConfirmationService
 from services.consent import get_session
+from services.pipeline import record_confirmed
 from state.proposals import ConfirmedMessage, Proposal
 from state.sessions import Session
 
@@ -59,7 +60,9 @@ async def confirm(
     proposal_id: str, body: ConfirmRequest, request: Request, session: Session = Depends(get_session)
 ) -> ActionResponse:
     async with session.lock:
-        return _out(_service(request).confirm(session, proposal_id, body.candidate_index))
+        result = _service(request).confirm(session, proposal_id, body.candidate_index)
+        record_confirmed(request.app, session, result.proposal)
+        return _out(result)
 
 
 @router.post("/proposals/{proposal_id}/edit", response_model=ActionResponse)
@@ -67,7 +70,9 @@ async def edit(
     proposal_id: str, body: EditRequest, request: Request, session: Session = Depends(get_session)
 ) -> ActionResponse:
     async with session.lock:
-        return _out(_service(request).edit(session, proposal_id, body.text))
+        result = _service(request).edit(session, proposal_id, body.text)
+        record_confirmed(request.app, session, result.proposal)
+        return _out(result)
 
 
 @router.post("/proposals/{proposal_id}/reject", response_model=ActionResponse)

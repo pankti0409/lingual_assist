@@ -7,10 +7,10 @@ from typing import Optional
 from fastapi import APIRouter, Depends, Request
 from pydantic import BaseModel, ConfigDict
 
-from clock import Timer
 from services.consent import get_session
-from services.evidence import EvidencePacket, build_packet, resolve_patient_turn
-from services.fusion import CLARIFICATION_MESSAGE, IntentRanker, get_ranker
+from services.evidence import EvidencePacket
+from services.fusion import IntentRanker, get_ranker
+from services.pipeline import run_fusion
 from state.proposals import Proposal
 from state.sessions import Session
 
@@ -39,20 +39,10 @@ async def fuse(
     ranker: IntentRanker = Depends(get_ranker),
 ) -> FuseResponse:
     body = body or FuseRequest()
-    turn = resolve_patient_turn(session, body.turn_id)
-    vreg = request.app.state.vision
-    packet = build_packet(
-        session, turn, vreg.for_session(session.session_id) if vreg.has(session.session_id) else None,
-        body.include_visual_cues,
-    )
-    timer = Timer(request.app.state.clock)
-    fusion = await ranker.rank(packet)
-    stage_ms = max(0, timer.elapsed_ms())
-    logger.info("fusion stage_ms=%d clarification=%s", stage_ms, fusion.clarification_required)
-    proposal = request.app.state.proposals.add(session, turn.turn_id, packet.timestamp_ms, fusion)
+    run = await run_fusion(request.app, session, ranker, body.turn_id, body.include_visual_cues)
     return FuseResponse(
-        proposal=proposal,
-        evidence=packet,
-        clarification_message=CLARIFICATION_MESSAGE if fusion.clarification_required else None,
-        stage_ms=stage_ms,
+        proposal=run.proposal,
+        evidence=run.packet,
+        clarification_message=run.clarification_message,
+        stage_ms=run.stage_ms,
     )

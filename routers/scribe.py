@@ -15,6 +15,7 @@ from errors import AppError
 from logging_setup import get_request_id
 from schemas import Language, Speaker, Turn
 from services.consent import ensure_consent, require_consent
+from services.pipeline import record_scribe
 from services.scribe import RealtimeEvent, Transcriber, get_transcriber, scribe_language_code
 from state.sessions import Session
 
@@ -62,6 +63,7 @@ async def transcribe(
         async with session.lock:
             # RAW Scribe text, unmodified (needed for WER).
             turn = session.conversation.add_turn(speaker, result.text, lang, "scribe_batch")
+        record_scribe(request.app, session, turn, stage_ms)
     return TranscribeResponse(
         turn=turn,
         raw_text=result.text,
