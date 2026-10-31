@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { Camera, CameraOff, Ear, Hand, MessagesSquare, ScanFace, Smile } from "lucide-react";
+import { CameraOff, Ear, Hand, MessagesSquare, ScanFace, Smile } from "lucide-react";
 import { useEffect, useRef, type ReactNode } from "react";
 import { useServices } from "@/api/ServicesProvider";
 import { GesturePortrait } from "@/art/Scenes";
@@ -24,24 +24,26 @@ export function useCues(ctl: Ctl) {
 
 const gestureName = (label: string) => label.replace(/_/g, " ").replace(/^ILoveYou$/, "I love you");
 
-type Level = "active" | "ready" | "off";
+type Status = "active" | "ready" | "processing" | "off" | "unavailable";
+const STATUS_WORD: Record<Status, string> = { active: "Active", ready: "Ready", processing: "Processing", off: "Off", unavailable: "Not available" };
 
-function Signal({ icon, label, value, level }: { icon: ReactNode; label: string; value: string; level: Level }) {
+function Signal({ icon, label, detail, status }: { icon: ReactNode; label: string; detail: string; status: Status }) {
   return (
-    <li className={`signal signal--${level}`}>
+    <li className={`signal signal--${status}`}>
       <span className="signal__icon" aria-hidden>{icon}</span>
       <span className="signal__text">
         <span className="signal__label">{label}</span>
-        <span className="signal__value">{value}</span>
+        <span className="signal__value">{detail}</span>
       </span>
-      <span className="signal__dot" aria-hidden />
+      <span className="signal__status">{STATUS_WORD[status]}</span>
     </li>
   );
 }
 
 /**
- * Multimodal signal indicators. Each one reflects real state: the capture phase, the camera
- * switch, and the latest cue the service returned. When something is off, it says "off".
+ * The five signal sources and their real state: the capture phase, the camera switch and the
+ * latest cue the service returned. Nothing is simulated here beyond what the service reports, and
+ * what this build cannot do (reading facial expressions) is shown as not available.
  */
 export function SignalStrip({ ctl }: { ctl: Ctl }) {
   const services = useServices();
@@ -50,35 +52,42 @@ export function SignalStrip({ ctl }: { ctl: Ctl }) {
   const consent = state.session?.consent;
   const c = cues.data;
   const g = c?.gesture;
-  const speech: [string, Level] =
+  const camLive = cues.on && !cues.isError && !!c;
+  const camDetail = !cues.on ? (consent?.face_capture && !state.typedOnly ? "Camera is off" : "Needs face and hand consent") : cues.isError ? "Cues unavailable" : !c ? "Waiting for the camera" : c.stale ? "Last cue is old — ignored" : "";
+
+  const speech: [string, Status] =
     phase === "recording"
       ? [`Listening to the ${state.speaker}`, "active"]
       : phase === "committing"
-        ? ["Saving the turn", "active"]
+        ? ["Turning speech into text", "processing"]
         : !live
           ? ["Session not active", "off"]
           : state.typedOnly
-            ? ["Off — typing only", "off"]
+            ? ["Typing only in this session", "off"]
             : !consent?.audio_recording
-              ? ["Off — no recording consent", "off"]
-              : ["Ready", "ready"];
-  const cam: [string, Level] = !cues.on ? ["Off", "off"] : cues.isError ? ["Unavailable", "off"] : c ? (c.stale ? ["On — cue is stale", "ready"] : ["On", "active"]) : ["On — waiting", "ready"];
-  const gesture: [string, Level] = !cues.on || !c ? ["—", "off"] : g ? [`${gestureName(g.label)}, ${g.stable ? "steady" : "not yet steady"}`, g.stable && !c.stale ? "active" : "ready"] : ["None seen", "ready"];
+              ? ["Needs recording consent", "off"]
+              : ["Press Record to start", "ready"];
+  const lips: [string, Status] = !camLive ? [camDetail, cues.isError ? "unavailable" : "off"] : c!.stale ? [camDetail, "ready"] : [c!.mouthActivity ? "Mouth is moving (movement only, not words)" : "Mouth is still", c!.mouthActivity ? "active" : "ready"];
+  const hands: [string, Status] = !camLive
+    ? [camDetail, cues.isError ? "unavailable" : "off"]
+    : g
+      ? [`${gestureName(g.label)}, ${g.stable ? "steady" : "not yet steady"}${g.meaning ? ` — “${g.meaning}”` : ""}${c!.headNod ? " · nodding" : ""}`, g.stable && !c!.stale ? "active" : "ready"]
+      : [c!.headNod ? "No hand gesture · nodding" : "No hand gesture seen", c!.headNod ? "active" : "ready"];
   const recent = Math.min(state.turns.length, 6);
+  const context: [string, Status] = phase === "fusing" ? ["Being used for suggestions", "processing"] : recent ? [`${recent} recent turn${recent === 1 ? "" : "s"}`, "ready"] : ["No turns yet", "off"];
 
   return (
     <section className="signals" aria-labelledby="signals-h">
       <div className="signals__head">
-        <h2 id="signals-h" className="signals__title">Signals</h2>
+        <h2 id="signals-h" className="signals__title">What the assistant can use</h2>
         {services.mode === "mock" && cues.on && <SimulatedTag>Simulated camera</SimulatedTag>}
       </div>
       <ul className="signals__list">
-        <Signal icon={<Ear size={20} />} label="Speech" value={speech[0]} level={speech[1]} />
-        <Signal icon={cues.on ? <Camera size={20} /> : <CameraOff size={20} />} label="Camera" value={cam[0]} level={cam[1]} />
-        <Signal icon={<Hand size={20} />} label="Gesture" value={gesture[0]} level={gesture[1]} />
-        <Signal icon={<Smile size={20} />} label="Mouth" value={!cues.on || !c ? "—" : c.mouthActivity ? "Moving" : "Still"} level={!cues.on || !c ? "off" : c.mouthActivity ? "active" : "ready"} />
-        <Signal icon={<ScanFace size={20} />} label="Head nod" value={!cues.on || !c ? "—" : c.headNod ? "Nodding" : "No nod"} level={!cues.on || !c ? "off" : c.headNod ? "active" : "ready"} />
-        <Signal icon={<MessagesSquare size={20} />} label="Context" value={recent ? `${recent} recent turn${recent === 1 ? "" : "s"}` : "None yet"} level={recent ? "active" : "off"} />
+        <Signal icon={<Ear size={20} />} label="Speech" detail={speech[0]} status={speech[1]} />
+        <Signal icon={<Smile size={20} />} label="Lip movement" detail={lips[0]} status={lips[1]} />
+        <Signal icon={<ScanFace size={20} />} label="Facial expression" detail="Not read — the assistant never guesses feelings" status="unavailable" />
+        <Signal icon={<Hand size={20} />} label="Hand gestures" detail={hands[0]} status={hands[1]} />
+        <Signal icon={<MessagesSquare size={20} />} label="Conversation" detail={context[0]} status={context[1]} />
       </ul>
     </section>
   );

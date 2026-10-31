@@ -9,7 +9,7 @@
  *                                                 only for large text, icons and borders)
  *   teal-ink   #2F6B6F on ivory          ~5.7:1   links and small teal text (derived from deep teal)
  *   white on deep teal #397F83           ~4.6:1   primary buttons
- *   ink on butter / peach / lilac / pistachio / light teal  >= 6:1
+ *   ink on butter #FFF4B8 / peach / lilac / pistachio / light teal  >= 6:1
  */
 :root {
   /* palette (supplied) */
@@ -20,7 +20,7 @@
   --teal-light: #bfdcd8;
   --teal-soft: #83bdb7;
   --teal-deep: #397f83;
-  --butter: #f7e9b8;
+  --butter: #fff4b8;
   --peach: #f3dccf;
   --lilac: #e5dff2;
   --pistachio: #dce8ce;
@@ -32,7 +32,7 @@
   --ink-soft: #5e6f72;
   --teal-ink: #2f6b6f;
   --teal-deeper: #2c6669;
-  --butter-strong: #efd98c;
+  --butter-strong: #f0dc7a;
   --peach-strong: #e9c3ad;
   --lilac-strong: #cfc5e6;
   --pistachio-strong: #bfd4a8;
@@ -68,10 +68,10 @@
   --font-display: "Fraunces Variable", "Noto Sans Devanagari", Georgia, "Times New Roman", serif;
   --font-body: "Atkinson Hyperlegible", "Noto Sans Devanagari", system-ui, -apple-system, "Segoe UI", sans-serif;
   --font-scale: 1;
-  --text-xs: 0.875rem; /* 14px: never smaller */
-  --text-sm: 0.9375rem;
-  --text-md: 1.0625rem;
-  --text-lg: 1.25rem;
+  --text-xs: 0.9375rem; /* 15px: never smaller */
+  --text-sm: 1rem;
+  --text-md: 1.125rem; /* 18px body: comfortable by default */
+  --text-lg: 1.3125rem;
   --text-xl: clamp(1.45rem, 1.2rem + 0.9vw, 1.85rem);
   --text-2xl: clamp(1.9rem, 1.4rem + 1.8vw, 2.85rem);
   --text-3xl: clamp(2.4rem, 1.6rem + 3vw, 4.25rem);
@@ -94,8 +94,8 @@
   --radius-md: 18px;
   --radius-lg: 26px;
   --radius-pill: 999px;
-  --target: 48px;
-  --target-lg: 60px;
+  --target: 52px;
+  --target-lg: 64px;
   --tile: 9.5rem;
   --content-max: 82rem;
   --rail: 15.5rem;
@@ -117,13 +117,13 @@
 
 /* ---- personal preferences (set on <html> by PreferencesProvider) ---- */
 :root[data-targets="large"] {
-  --target: 58px;
-  --target-lg: 70px;
+  --target: 60px;
+  --target-lg: 72px;
   --tile: 11rem;
 }
 :root[data-targets="xl"] {
-  --target: 68px;
-  --target-lg: 82px;
+  --target: 70px;
+  --target-lg: 84px;
   --tile: 12.5rem;
 }
 

@@ -1453,7 +1453,7 @@ kbd {
   right: 1rem;
   bottom: calc(5.5rem + env(safe-area-inset-bottom));
   z-index: 150;
-  width: min(25rem, calc(100vw - 2rem));
+  width: min(23rem, calc(100vw - 2rem));
   pointer-events: none;
 }
 
@@ -1511,51 +1511,9 @@ kbd {
 
 .celebrate__close {
   align-self: start;
-  width: 2.5rem;
-  height: 2.5rem;
-}
-
-.burst {
-  position: absolute;
-  inset: 50% auto auto 50%;
-  width: 0;
-  height: 0;
-}
-
-.burst__piece {
-  position: absolute;
-  width: 10px;
-  height: 10px;
-  margin: -5px;
-  border: 1.5px solid var(--ink);
-}
-
-.burst__piece--s0 {
-  border-radius: 50%;
-}
-
-.burst__piece--s2 {
-  border-radius: 2px 10px;
-}
-
-.burst__piece--teal {
-  background: var(--teal-soft);
-}
-
-.burst__piece--butter {
-  background: var(--butter);
-}
-
-.burst__piece--lilac {
-  background: var(--lilac-strong);
-}
-
-.burst__piece--peach {
-  background: var(--peach-strong);
-}
-
-.burst__piece--pistachio {
-  background: var(--pistachio-strong);
+  min-height: 2.75rem;
+  padding-inline: 0.8rem;
+  font-size: var(--text-sm);
 }
 
 /* ------------------------------------------------------------------ motion preferences */
@@ -1609,4 +1567,12 @@ html.is-hidden *::after {
   .stop {
     border: 2px solid ButtonText;
   }
+}
+
+/* Programmatic focus targets (main after navigation, headings moved to) never show a ring. */
+.site-main:focus,
+.site-main:focus-visible,
+[tabindex="-1"]:focus-visible {
+  outline: none;
+  box-shadow: none;
 }

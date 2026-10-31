@@ -36,6 +36,8 @@ export interface Preferences {
   voice: { rate: number; pitch: number; volume: number; favouriteVoiceId: string | null; previewText: string };
   favourites: string[];
   customExpressions: CustomExpression[];
+  /** Expression ids most recently confirmed, newest first (ids only, never message text). */
+  recentExpressions: string[];
   /** How many distinct settings have been changed (for the "Personalisation Pro" milestone). */
   tuned: string[];
 }
@@ -56,6 +58,7 @@ export const DEFAULT_PREFERENCES: Preferences = {
   voice: { rate: 1, pitch: 1, volume: 1, favouriteVoiceId: null, previewText: "Hello! This is how my confirmed messages will sound." },
   favourites: ["greet-hello", "yes", "no", "needs-water", "comfort-thank-you", "q-repeat"],
   customExpressions: [],
+  recentExpressions: [],
   tuned: [],
 };
 
@@ -86,6 +89,7 @@ type Action =
   | { type: "favourite"; id: string }
   | { type: "custom/add"; expression: CustomExpression }
   | { type: "custom/remove"; id: string }
+  | { type: "recent/add"; id: string }
   | { type: "reset" };
 
 function reducer(state: Preferences, action: Action): Preferences {
@@ -108,7 +112,10 @@ function reducer(state: Preferences, action: Action): Preferences {
         ...state,
         customExpressions: state.customExpressions.filter((e) => e.id !== action.id),
         favourites: state.favourites.filter((f) => f !== action.id),
+        recentExpressions: state.recentExpressions.filter((f) => f !== action.id),
       };
+    case "recent/add":
+      return { ...state, recentExpressions: [action.id, ...state.recentExpressions.filter((r) => r !== action.id)].slice(0, 8) };
     case "reset":
       return DEFAULT_PREFERENCES;
   }
@@ -122,6 +129,7 @@ interface Ctx {
   toggleFavourite: (id: string) => void;
   addCustom: (e: Omit<CustomExpression, "id">) => CustomExpression;
   removeCustom: (id: string) => void;
+  addRecent: (id: string) => void;
   reset: () => void;
 }
 
@@ -152,9 +160,13 @@ export function PreferencesProvider({ children, initial }: { children: ReactNode
     return expression;
   }, []);
   const removeCustom = useCallback((id: string) => dispatch({ type: "custom/remove", id }), []);
+  const addRecent = useCallback((id: string) => dispatch({ type: "recent/add", id }), []);
   const reset = useCallback(() => dispatch({ type: "reset" }), []);
 
-  const value = useMemo(() => ({ prefs, set, setVoice, toggleFavourite, addCustom, removeCustom, reset }), [prefs, set, setVoice, toggleFavourite, addCustom, removeCustom, reset]);
+  const value = useMemo(
+    () => ({ prefs, set, setVoice, toggleFavourite, addCustom, removeCustom, addRecent, reset }),
+    [prefs, set, setVoice, toggleFavourite, addCustom, removeCustom, addRecent, reset],
+  );
   return <PreferencesContext.Provider value={value}>{children}</PreferencesContext.Provider>;
 }
 

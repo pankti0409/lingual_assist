@@ -77,7 +77,7 @@ function Confirmed({ message, autoPlay }: { message: ConfirmedMessage; autoPlay:
 
 /** Review → confirm → play, for one quick expression. Nothing is spoken before "Confirm". */
 export function ExpressionSheet({ expression, onClose }: { expression: Expression | null; onClose: () => void }) {
-  const { prefs } = usePreferences();
+  const { prefs, addRecent } = usePreferences();
   const quick = useQuickSay();
   const [confirmed, setConfirmed] = useState<ConfirmedMessage | null>(null);
   const [large, setLarge] = useState(false);
@@ -97,7 +97,10 @@ export function ExpressionSheet({ expression, onClose }: { expression: Expressio
 
   async function onConfirm() {
     const res = await quick.confirm(ex!.text);
-    if (res) setConfirmed(res);
+    if (res) {
+      setConfirmed(res);
+      addRecent(ex!.id);
+    }
   }
 
   return (

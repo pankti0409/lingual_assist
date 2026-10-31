@@ -96,8 +96,8 @@ export function Dialog({ open, onClose, title, description, children, initialFoc
           >
             <div className="dialog__head">
               <h2 id={titleId} className="dialog__title">{title}</h2>
-              <button type="button" className="icon-btn" onClick={onClose} aria-label="Close dialog">
-                <X aria-hidden size={22} />
+              <button type="button" className="btn btn--secondary btn--md dialog__close" onClick={onClose} aria-label="Close dialog">
+                <X aria-hidden size={20} /> <span aria-hidden>Close</span>
               </button>
             </div>
             {description && <div id={descId} className="dialog__desc">{description}</div>}

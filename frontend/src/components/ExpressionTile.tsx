@@ -34,7 +34,7 @@ export function ExpressionTile({
   const calm = useCalm();
   const cat = categoryOf(expression.category);
   return (
-    <div className={`xtile xtile--${cat.accent}${expression.category === "emergency" ? " xtile--urgent" : ""}${compact ? " xtile--compact" : ""}`}>
+    <div className={`xtile${onFavourite ? " xtile--with-fav" : ""} xtile--${cat.accent}${expression.category === "emergency" ? " xtile--urgent" : ""}${compact ? " xtile--compact" : ""}`}>
       <motion.button
         type="button"
         className="xtile__main"
@@ -53,10 +53,11 @@ export function ExpressionTile({
           type="button"
           className={`xtile__fav${favourite ? " is-on" : ""}`}
           aria-pressed={!!favourite}
-          aria-label={favourite ? `Remove “${expression.text}” from favourites` : `Add “${expression.text}” to favourites`}
+          aria-label={favourite ? `Favourite: ${expression.text} — press to remove` : `Add to favourites: ${expression.text}`}
           onClick={() => onFavourite(expression)}
         >
-          <Star size={20} aria-hidden fill={favourite ? "currentColor" : "none"} />
+          <Star size={18} aria-hidden fill={favourite ? "currentColor" : "none"} />
+          <span aria-hidden>{favourite ? "Favourite" : "Add to favourites"}</span>
         </button>
       )}
     </div>

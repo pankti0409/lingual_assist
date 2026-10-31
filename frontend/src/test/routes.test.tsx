@@ -8,7 +8,7 @@ const ROUTES: [string, RegExp, string][] = [
   ["/conversation", /talk, review, then speak/i, "Conversation · Lingual Assist"],
   ["/expressions", /say it in a tap/i, "Quick expressions · Lingual Assist"],
   ["/voice", /find a voice that feels like you/i, "Voice Studio · Lingual Assist"],
-  ["/journey", /your communication journey/i, "Your journey · Lingual Assist"],
+  ["/journey", /your progress and badges/i, "Progress and badges · Lingual Assist"],
   ["/settings", /make it yours/i, "Settings · Lingual Assist"],
   ["/gestures", /gestures mean what you decide/i, "Gesture settings · Lingual Assist"],
   ["/review", /no session to review/i, "Session review · Lingual Assist"],
@@ -34,7 +34,7 @@ describe("routing", () => {
     expect(screen.getByRole("link", { name: /skip to main content/i })).toHaveAttribute("href", "#main");
     expect(screen.getByRole("main")).toHaveAttribute("id", "main");
     const nav = screen.getByRole("navigation", { name: "Main" });
-    for (const name of ["Home", "Talk", "Expressions", "Voice Studio", "Journey", "Settings", "Gestures", "Session setup", "Review", "Evaluation", "Screens"]) {
+    for (const name of ["Home", "Talk", "Expressions", "Voice Studio", "Progress", "Settings", "Gestures", "Session setup", "Review", "Evaluation", "Screens"]) {
       expect(within(nav).getByRole("link", { name })).toBeInTheDocument();
     }
     expect(within(nav).getByRole("link", { name: "Session setup" })).toHaveAttribute("aria-current", "page");
@@ -48,19 +48,23 @@ describe("routing", () => {
     await renderApp("/", { preferences: { name: "Asha" } });
     expect(screen.getByRole("heading", { level: 1, name: /, asha\.$/i })).toBeInTheDocument();
     expect(screen.getAllByText(/nothing is spoken until you confirm it/i).length).toBeGreaterThan(0);
-    expect(screen.getByRole("link", { name: /start communicating/i })).toHaveAttribute("href", "/setup");
+    expect(screen.getByRole("link", { name: /start conversation/i })).toHaveAttribute("href", "/setup");
     expect(screen.getByRole("link", { name: /try a sample/i })).toHaveAttribute("href", "/conversation?scenario=water");
-    expect(screen.getByRole("heading", { name: /quick expressions/i })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: /your favourite expressions/i })).toBeInTheDocument();
+    for (const name of [/communication board/i, /voice settings/i, /text size & comfort/i]) {
+      expect(within(screen.getByRole("navigation", { name: "Shortcuts" })).getByRole("link", { name })).toBeInTheDocument();
+    }
     expect(screen.getByRole("button", { name: /^hello! — review before saying/i })).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: /your journey/i })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: /getting started/i })).toBeInTheDocument();
+    expect(screen.getByRole("progressbar", { name: /optional steps done/i })).toHaveAttribute("aria-valuenow", "0");
   });
 
   it("simplified interface hides the journey and lab from navigation and the home extras", async () => {
     await renderApp("/", { preferences: { simplified: true } });
     const nav = screen.getByRole("navigation", { name: "Main" });
     expect(within(nav).queryByRole("link", { name: "Evaluation" })).toBeNull();
-    expect(screen.queryByRole("heading", { name: /your journey/i })).toBeNull();
-    expect(screen.queryByRole("heading", { name: /worth trying/i })).toBeNull();
+    expect(screen.queryByRole("heading", { name: /getting started/i })).toBeNull();
+    expect(within(nav).queryByRole("link", { name: "Progress" })).toBeNull();
     expect(document.documentElement.dataset.simple).toBe("true");
   });
 });

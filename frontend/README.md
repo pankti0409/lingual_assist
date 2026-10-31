@@ -15,6 +15,7 @@ npm test               # route, consent and confirmation-rule tests
 npm run typecheck
 npm run build
 npm run check:layout   # headless Chrome: every route at 390/768/1024/1440/1920 px — overflow, console errors, failed requests
+node tools/walkthrough.mjs <dir>   # headless Chrome: drives sample → confirm → play, expressions, voice, progress; saves screenshots
 npm run media          # re-render all illustrations, posters and hero videos (needs Chrome + ffmpeg)
 ```
 
@@ -37,14 +38,17 @@ doesn’t use. The camera preview stays on the device, and frames are not upload
 ```
 src/
   api/          contracts.ts (service interfaces), types.ts, mock/ (in-memory backend + scenarios), http/ (FastAPI adapter)
-  state/        session store (temporary, in memory) and session actions
-  router.tsx    typed route tree: / /setup /conversation /voice /gestures /review /evaluation /screens (+ not found)
+  state/        session store (temporary, in memory), session actions, playback, quick-say (expressions go through
+                the normal confirm pipeline), device-local preferences, and the optional progress/badges store
+  router.tsx    typed route tree: / /conversation /expressions /voice /journey /settings /gestures /setup /review
+                /evaluation /screens (+ not found)
   shell/        app shell, skip link, navigation, connection banner, loading / error / not-found states
   pages/        one folder or file per route; conversation/ holds the main screen
   components/   Button, Dialog (focus trap), fields, ConsentSwitch, status, transcript
   art/          original illustration system (React SVG): Person, cast, HeroFilm (storyboard as a function of time), scenes
   lib/          motion constants, playback, device checks, DOM helpers
-  styles/       tokens.css (palette, type, motion), global.css
+  styles/       tokens.css ("Playful Serenity" palette, type, motion, preference hooks), global.css (base, primitives,
+                shell), pages.css (screens), companion.css (home, progress, favourites, signals)
 tools/          render-media.mjs, check-layout.mjs, render page for headless capture
 art-source/     exported SVG source of every still
 public/media/   WebP + AVIF stills and posters, hero MP4/WebM (16:9 and 4:5), captions
@@ -67,3 +71,9 @@ All characters and scenes are original vector artwork in `src/art`, drawn with t
 same storyboard rendered frame by frame (16 s, 24 fps, seamless loop, no audio) at 1600×900 and 800×1000. Posters show
 first, and the video loads afterwards, only when motion is allowed. Under reduced motion only the poster is used, and the
 scroll story becomes a plain vertical sequence of stills.
+
+## Personal preferences and progress
+Text size, button size, contrast, motion, simplified mode, favourites, custom expressions and voice playback settings are
+saved only in this browser (localStorage) and never sent to the service. Progress steps and badges are optional, are earned
+only from real actions, store event names and dates only (never message text), and record nothing while switched off.
+Speed and volume apply to every playback mode; pitch is offered only where the engine that speaks messages supports it.

@@ -43,7 +43,7 @@ const GROUPS: { title: string | null; items: NavItem[] }[] = [
       { to: "/conversation", label: "Talk", icon: MessageCircle },
       { to: "/expressions", label: "Expressions", icon: LayoutGrid },
       { to: "/voice", label: "Voice Studio", icon: AudioLines },
-      { to: "/journey", label: "Journey", icon: RouteIcon, journey: true },
+      { to: "/journey", label: "Progress", icon: RouteIcon, journey: true },
     ],
   },
   {
@@ -81,7 +81,7 @@ export function BrandMark({ size = 40 }: { size?: number }) {
     <svg viewBox="0 0 48 48" width={size} height={size} aria-hidden className="brand__mark">
       <path d="M8 22c0-9 7.5-15 16.5-15S41 13 41 22s-7.5 15-16.5 15c-2 0-4-.3-5.8-.9L11 40l1.8-7.2C9.8 30 8 26.3 8 22Z" fill="#BFDCD8" stroke="#344B50" strokeWidth={2.6} strokeLinejoin="round" />
       <path d="M17 22.5l5 5 9.5-10.5" fill="none" stroke="#344B50" strokeWidth={3.2} strokeLinecap="round" strokeLinejoin="round" />
-      <circle cx={38.5} cy={10.5} r={5} fill="#F7E9B8" stroke="#344B50" strokeWidth={2.2} />
+      <circle cx={38.5} cy={10.5} r={5} fill="#FFF4B8" stroke="#344B50" strokeWidth={2.2} />
     </svg>
   );
 }
@@ -90,7 +90,7 @@ function Brand() {
   return (
     <Link to="/" className="brand" aria-label="Lingual Assist, home">
       <BrandMark />
-      <span className="brand__name">Lingual<br />Assist</span>
+      <span className="brand__name">Lingual <br />Assist</span>
     </Link>
   );
 }
@@ -163,7 +163,7 @@ export function AppShell() {
 
   const groups = GROUPS.map((g) => ({
     ...g,
-    items: g.items.filter((i) => !(i.journey && !prefs.journey) && !(i.lab && prefs.simplified)),
+    items: g.items.filter((i) => !(i.journey && (!prefs.journey || prefs.simplified)) && !(i.lab && prefs.simplified)),
   })).filter((g) => g.items.length);
 
   return (

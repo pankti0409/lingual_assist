@@ -1,7 +1,7 @@
-import { Keyboard, RotateCcw, Trash2 } from "lucide-react";
+import { AudioLines, ClipboardList, Hand, Keyboard, RotateCcw, Trash2 } from "lucide-react";
 import { useRef, useState } from "react";
 import type { Language } from "@/api/types";
-import { Button } from "@/components/Button";
+import { Button, ButtonLink } from "@/components/Button";
 import { ConsentSwitch } from "@/components/ConsentSwitch";
 import { Dialog } from "@/components/Dialog";
 import { ChoiceGroup, TextField } from "@/components/Field";
@@ -80,16 +80,16 @@ export function SettingsPage() {
             setAnnounce(`Button size ${v === "xl" ? "extra large" : v}.`);
           }}
           options={[
-            { value: "standard", label: "Standard", description: "48 px targets" },
-            { value: "large", label: "Large", description: "58 px targets" },
-            { value: "xl", label: "Extra large", description: "68 px targets" },
+            { value: "standard", label: "Standard", description: "52 px targets" },
+            { value: "large", label: "Large", description: "60 px targets" },
+            { value: "xl", label: "Extra large", description: "70 px targets" },
           ]}
         />
       </Group>
 
       <Group id="display-h" title="Display and motion">
         <div className="consent-list">
-          <ConsentSwitch title="Simplified interface" description="Shows only the essentials: Home, Talk, Expressions and Voice. Hides extras like discovery cards." checked={prefs.simplified} onChange={toggle("simplified", "Simplified interface")} />
+          <ConsentSwitch title="Simplified interface" description="Shows only the essentials. Hides progress, badges and the prototype lab." checked={prefs.simplified} onChange={toggle("simplified", "Simplified interface")} />
           <ConsentSwitch title="High contrast" description="Stronger text, borders and focus outlines." checked={prefs.highContrast} onChange={toggle("highContrast", "High contrast")} />
           <ConsentSwitch title="Extra-visible focus" description="A thicker outline around whatever is selected — helpful with a keyboard or switch." checked={prefs.strongFocus} onChange={toggle("strongFocus", "Extra-visible focus")} />
         </div>
@@ -132,10 +132,34 @@ export function SettingsPage() {
         </div>
       </Group>
 
-      <Group id="journey-h" title="Journey and badges" text="Entirely optional. There are no streaks, scores or targets.">
+      <Group id="voice-set-h" title="Voice" text="Speed, volume and the voice used for confirmed messages.">
+        <p>
+          Speed {prefs.voice.rate.toFixed(2)}× · Volume {Math.round(prefs.voice.volume * 100)}%
+        </p>
+        <div className="actions">
+          <ButtonLink to="/voice" variant="secondary" icon={<AudioLines size={20} />}>Open Voice Studio</ButtonLink>
+          <ButtonLink to="/gestures" variant="secondary" icon={<Hand size={20} />}>Gesture meanings</ButtonLink>
+        </div>
+        <p className="muted small">
+          Gesture sensitivity (how long a gesture must be held) is set by the service and can’t be changed from this app yet.
+        </p>
+      </Group>
+
+      <Group id="privacy-h" title="Privacy and conversation history" text="Conversations are temporary and belong to one session.">
+        <ul className="plain-list">
+          <li>Each session asks separately about recording, camera, voice cloning and demo use — all start off.</li>
+          <li>The transcript and confirmed messages are kept only while the session exists. There is no permanent history.</li>
+          <li>You can see, change consent for, end or delete the current session in Review.</li>
+        </ul>
+        <div className="actions">
+          <ButtonLink to="/review" variant="secondary" icon={<ClipboardList size={20} />}>Review this session</ButtonLink>
+        </div>
+      </Group>
+
+      <Group id="journey-h" title="Progress and badges" text="Entirely optional. No points, streaks or targets — and nothing is ever locked.">
         <div className="consent-list">
-          <ConsentSwitch title="Show my journey" description="Milestones and badges for things you’ve tried. When off, nothing is recorded." checked={prefs.journey} onChange={toggle("journey", "Journey")} />
-          <ConsentSwitch title="Celebrations" description="A small badge pop-up when you earn something. Never blocks the screen." checked={prefs.celebrations} onChange={toggle("celebrations", "Celebrations")} disabled={!prefs.journey} />
+          <ConsentSwitch title="Show progress and badges" description="A short getting-started list and small badges. When off, nothing is recorded." checked={prefs.journey} onChange={toggle("journey", "Progress and badges")} />
+          <ConsentSwitch title="Badge messages" description="A small note when you earn a badge. Never blocks the screen." checked={prefs.celebrations} onChange={toggle("celebrations", "Badge messages")} disabled={!prefs.journey} />
         </div>
       </Group>
 
@@ -150,7 +174,7 @@ export function SettingsPage() {
         <p className="muted small"><Keyboard size={16} aria-hidden /> The first Tab on every page offers “Skip to main content”.</p>
       </Group>
 
-      <Group id="data-h" title="Saved on this device" text="Preferences, favourites, your own expressions and journey dates live only in this browser.">
+      <Group id="data-h" title="Saved on this device" text="Preferences, favourites, your own expressions and badge dates live only in this browser.">
         <div className="actions">
           <Button variant="secondary" icon={<RotateCcw size={20} />} onClick={() => setConfirmReset(true)}>Reset preferences…</Button>
           <Button
@@ -158,13 +182,13 @@ export function SettingsPage() {
             icon={<Trash2 size={20} />}
             onClick={() => {
               journey.clear();
-              setAnnounce("Journey cleared.");
+              setAnnounce("Progress cleared.");
             }}
           >
-            Clear journey
+            Clear progress and badges
           </Button>
         </div>
-        {announce.startsWith("Journey cleared") && <Notice tone="success" title="Journey cleared" />}
+        {announce.startsWith("Progress cleared") && <Notice tone="success" title="Progress and badges cleared" />}
       </Group>
 
       <Dialog open={confirmReset} onClose={() => setConfirmReset(false)} title="Reset all preferences?" tone="danger" initialFocusRef={keepRef} description="Text size, buttons, motion, your name, favourites and your own expressions go back to the defaults.">

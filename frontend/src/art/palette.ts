@@ -8,7 +8,7 @@ export const C = {
   cream50: "#F8F8F1", // warm ivory
   cream100: "#FFF9E8", // butter cream
   cream200: "#E8E6DD", // warm grey
-  sand200: "#F7E9B8", // butter yellow
+  sand200: "#FFF4B8", // butter yellow
   peach100: "#FBEEE6", // soft peach, lighter
   peach200: "#F3DCCF", // soft peach
   coral100: "#E5DFF2", // muted lilac

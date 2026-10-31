@@ -19,7 +19,8 @@ export type JourneyEvent =
   | "confirmed-expression"
   | "voice-tried"
   | "gestures-saved"
-  | "expression-created";
+  | "expression-saved"
+  | "voice-saved";
 
 export type JourneyIcon = "compass" | "message" | "sparkle" | "wave" | "hand" | "sliders" | "pen" | "heart";
 
@@ -29,6 +30,8 @@ export interface Milestone {
   text: string;
   how: string;
   to: "/setup" | "/conversation" | "/expressions" | "/voice" | "/gestures" | "/settings";
+  /** Short friendly line shown once it is done. */
+  doneText: string;
   icon: JourneyIcon;
 }
 
@@ -42,22 +45,22 @@ export interface Achievement {
   tone: "teal" | "butter" | "lilac" | "peach" | "pistachio";
 }
 
+/** An optional, gentle "getting started" checklist. Nothing here is required to use the app. */
 export const MILESTONES: Milestone[] = [
-  { id: "setup", title: "Set up a session", text: "Pick a language and decide on each consent.", how: "Open Session setup and start a session — typing only is fine.", to: "/setup", icon: "compass" },
-  { id: "first-message", title: "Say a first message", text: "Choose, edit or write a reply and confirm it.", how: "In Talk, add a message and confirm the exact words you want.", to: "/conversation", icon: "message" },
-  { id: "expression", title: "Use a quick expression", text: "Say something from your expression board.", how: "Open Expressions, tap a tile and confirm it.", to: "/expressions", icon: "sparkle" },
-  { id: "voice", title: "Hear a voice", text: "Preview how your messages can sound.", how: "Open Voice Studio and press Preview.", to: "/voice", icon: "wave" },
-  { id: "gesture", title: "Give a gesture meaning", text: "Decide what a hand shape means to you.", how: "Open Gestures, write a meaning and save it.", to: "/gestures", icon: "hand" },
-  { id: "yours", title: "Make it yours", text: "Adjust three settings to suit you.", how: "In Settings, change text size, button size or anything else.", to: "/settings", icon: "sliders" },
+  { id: "setup", title: "Start a session", text: "Choose a language and your privacy choices.", how: "Open Session setup and press Start — typing only is fine.", to: "/setup", icon: "compass", doneText: "Your communication space is ready." },
+  { id: "first-message", title: "Confirm a first message", text: "Pick, edit or write a reply and confirm it.", how: "In Talk, add a message, then confirm the exact words.", to: "/conversation", icon: "message", doneText: "You confirmed your first message." },
+  { id: "favourites", title: "Save favourite expressions", text: "Keep the phrases you use most on Home.", how: "On the Expressions board, press “Add to favourites” on a tile.", to: "/expressions", icon: "sparkle", doneText: "Your favourite expressions are saved." },
+  { id: "voice", title: "Set your voice preferences", text: "Choose a comfortable speed and volume.", how: "In Voice Studio, adjust the sliders and press Save settings.", to: "/voice", icon: "wave", doneText: "Your voice preferences have been updated." },
+  { id: "comfort", title: "Adjust comfort settings", text: "Make text and buttons the size you like.", how: "In Settings, change text size, button size or contrast.", to: "/settings", icon: "sliders", doneText: "Your comfort settings are in place." },
 ];
 
 export const ACHIEVEMENTS: Achievement[] = [
   { id: "first-conversation", title: "First Conversation", text: "You confirmed your first message.", hint: "Confirm any message in Talk or from Expressions.", icon: "message", shape: "seal", tone: "teal" },
-  { id: "voice-explorer", title: "Voice Explorer", text: "You listened to how a voice sounds.", hint: "Preview or create a voice in Voice Studio.", icon: "wave", shape: "flower", tone: "lilac" },
-  { id: "expression-creator", title: "Expression Creator", text: "You added an expression of your own.", hint: "Create a custom expression on the board.", icon: "sparkle", shape: "star", tone: "butter" },
+  { id: "voice-explorer", title: "Voice Explorer", text: "You listened to how a voice sounds.", hint: "Press Preview in Voice Studio.", icon: "wave", shape: "flower", tone: "lilac" },
+  { id: "first-expression-saved", title: "First Expression Saved", text: "You saved an expression to use again.", hint: "Favourite a tile or create your own expression.", icon: "sparkle", shape: "star", tone: "butter" },
   { id: "own-words", title: "In Your Own Words", text: "You edited a suggestion before confirming it.", hint: "Edit a suggested reply, then confirm it.", icon: "pen", shape: "drop", tone: "peach" },
   { id: "gesture-guide", title: "Gesture Guide", text: "You gave your gestures their meanings.", hint: "Save gesture meanings for a session.", icon: "hand", shape: "hex", tone: "pistachio" },
-  { id: "personalisation-pro", title: "Personalisation Pro", text: "You tuned three different settings.", hint: "Change any three settings to suit you.", icon: "sliders", shape: "shield", tone: "teal" },
+  { id: "personalisation-complete", title: "Personalisation Complete", text: "Favourites, voice and comfort settings are all set up.", hint: "Save favourites, voice preferences and a comfort setting.", icon: "sliders", shape: "shield", tone: "teal" },
   { id: "communication-companion", title: "Communication Companion", text: "You confirmed messages three ways: a suggestion, your own edit and a quick expression.", hint: "Try a suggestion, an edit and a quick expression.", icon: "heart", shape: "ticket", tone: "lilac" },
 ];
 
@@ -89,14 +92,12 @@ export function milestoneDone(id: string, e: Events, tuned: number): boolean {
       return !!e["session-started"];
     case "first-message":
       return confirmedAny(e);
-    case "expression":
-      return !!e["confirmed-expression"];
+    case "favourites":
+      return !!e["expression-saved"];
     case "voice":
-      return !!e["voice-tried"];
-    case "gesture":
-      return !!e["gestures-saved"];
-    case "yours":
-      return tuned >= 3;
+      return !!e["voice-saved"];
+    case "comfort":
+      return tuned >= 1;
     default:
       return false;
   }
@@ -108,14 +109,14 @@ export function achievementEarned(id: string, e: Events, tuned: number): boolean
       return confirmedAny(e);
     case "voice-explorer":
       return !!e["voice-tried"];
-    case "expression-creator":
-      return !!e["expression-created"];
+    case "first-expression-saved":
+      return !!e["expression-saved"];
     case "own-words":
       return !!e["confirmed-edit"];
     case "gesture-guide":
       return !!e["gestures-saved"];
-    case "personalisation-pro":
-      return tuned >= 3;
+    case "personalisation-complete":
+      return !!e["expression-saved"] && !!e["voice-saved"] && tuned >= 1;
     case "communication-companion":
       return !!(e["confirmed-suggestion"] && e["confirmed-edit"] && e["confirmed-expression"]);
     default:

@@ -1,4 +1,4 @@
-import { Check, ChevronLeft, Ear, Expand, HelpCircle, Lightbulb, Pencil, PenLine, Play, RotateCcw, Sparkles, Square, ThumbsDown, Volume2 } from "lucide-react";
+import { Check, ChevronLeft, Ear, Expand, HelpCircle, Lightbulb, Pencil, PenLine, Play, RefreshCw, RotateCcw, Sparkles, Square, ThumbsDown, Volume2 } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { useEffect, useRef, useState } from "react";
 import { useServices } from "@/api/ServicesProvider";
@@ -68,6 +68,11 @@ export function ProposalPanel({ ctl, onRepeat, onTypeInstead }: { ctl: Ctl; onRe
     const res = await decide("edit", p, editText);
     if (res) setReview(null);
   }
+  /** Regenerate: these suggestions are recorded as rejected (nothing spoken), then new ones are requested. */
+  async function regenerate(p: Proposal) {
+    const res = await decide("reject", p);
+    if (res) await fuse();
+  }
   function startEdit(p: Proposal, seed?: string) {
     if (!editText) dispatch({ type: "draft/edit", text: seed ?? p.fusion.candidateReplies[0] ?? "" });
     setReview({ kind: "edit" });
@@ -122,7 +127,7 @@ export function ProposalPanel({ ctl, onRepeat, onTypeInstead }: { ctl: Ctl; onRe
           )}
           {proposal.fusion.intent && !proposal.fusion.clarificationRequired && (
             <p className="inferred__row">
-              <Lightbulb size={18} aria-hidden /> <span className="inferred__label">Possible meaning</span> <span className="inferred__value">{humanIntent(proposal.fusion.intent)}</span>
+              <Lightbulb size={18} aria-hidden /> <span className="inferred__label">Suggested meaning</span> <span className="inferred__value">{humanIntent(proposal.fusion.intent)}</span>
             </p>
           )}
         </div>
@@ -232,6 +237,11 @@ export function ProposalPanel({ ctl, onRepeat, onTypeInstead }: { ctl: Ctl; onRe
                 <Button variant="secondary" icon={<ThumbsDown size={20} />} disabled={!live || busy} onClick={() => void decide("reject", proposal)}>
                   None of these
                 </Button>
+                {proposal.fusion.candidateReplies.length > 0 && (
+                  <Button variant="secondary" icon={<RefreshCw size={20} />} disabled={!live || busy} onClick={() => void regenerate(proposal)}>
+                    Suggest different replies
+                  </Button>
+                )}
                 <Button variant="secondary" icon={<HelpCircle size={20} />} disabled={!live || busy} onClick={() => void decide("clarify", proposal)}>
                   Ask to clarify
                 </Button>

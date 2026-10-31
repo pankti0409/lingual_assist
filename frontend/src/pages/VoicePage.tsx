@@ -92,16 +92,17 @@ export function VoicePage() {
 
   function saveSettings() {
     setVoice({ ...draft, previewText: sample.trim() || SAMPLES[0] });
-    set({}, "voice");
+    record("voice-saved");
     setSaved(true);
     setAnnounce("Voice settings saved on this device.");
   }
 
-  const pitchHint = !browserVoice
-    ? "This browser has no built-in voice, so pitch can’t be changed here."
-    : mock
-      ? "Applies to the browser voice used in this prototype."
-      : "Applies to previews in this device’s voice. Messages spoken by the voice service keep their natural pitch.";
+  // Pitch is shown only when confirmed messages are played by an engine that can change it: the
+  // browser voice used in prototype mode. Provider audio (HTTP mode) keeps its natural pitch.
+  const showPitch = canPitch && mock;
+  const pitchNote = !browserVoice
+    ? "Pitch can’t be changed here: this browser has no built-in voice."
+    : "Pitch can’t be changed for the voice service — it keeps its natural pitch.";
 
   return (
     <div className="page voice">
@@ -194,7 +195,11 @@ export function VoicePage() {
             ]}
           />
           <Slider label="Volume" icon={<Volume2 size={20} />} value={draft.volume} min={0} max={1} step={0.05} format={(v) => `${Math.round(v * 100)}%`} onChange={(v) => edit({ volume: v })} presets={[{ label: "Soft", value: 0.5 }, { label: "Full", value: 1 }]} />
-          <Slider label="Pitch" icon={<Music2 size={20} />} hint={pitchHint} value={draft.pitch} min={0.5} max={1.5} step={0.05} format={(v) => (v === 1 ? "Natural" : v < 1 ? `Lower (${v.toFixed(2)})` : `Higher (${v.toFixed(2)})`)} onChange={(v) => edit({ pitch: v })} disabled={!canPitch} />
+          {showPitch ? (
+            <Slider label="Pitch" icon={<Music2 size={20} />} hint="Applies to the browser voice used in this prototype." value={draft.pitch} min={0.5} max={1.5} step={0.05} format={(v) => (v === 1 ? "Natural" : v < 1 ? `Lower (${v.toFixed(2)})` : `Higher (${v.toFixed(2)})`)} onChange={(v) => edit({ pitch: v })} />
+          ) : (
+            <p className="muted small"><Music2 size={16} aria-hidden /> {pitchNote}</p>
+          )}
           <div className="actions">
             <Button icon={<Save size={20} />} onClick={saveSettings} disabled={!dirty && saved}>Save settings</Button>
             <Button variant="quiet" icon={<RotateCcw size={18} />} onClick={() => edit({ rate: 1, pitch: 1, volume: 1 })}>Reset</Button>
@@ -221,7 +226,7 @@ export function VoicePage() {
       <section className="panel" aria-labelledby="avail-h">
         <div className="panel__head">
           <h2 id="avail-h" className="h3">Voice gallery</h2>
-          <span className="muted small">Star a favourite to remember it on this device.</span>
+          <span className="muted small">Your favourite is remembered on this device.</span>
         </div>
         {voices.isPending && (
           <div className="voice-gallery" role="status" aria-label="Loading voices">
@@ -245,8 +250,9 @@ export function VoicePage() {
                 <li key={v.voiceId} className={`voice-card voice-card--${["lilac", "butter", "peach", "pistachio"][i % 4]}`}>
                   <div className="voice-card__top">
                     <span className="voice-card__avatar" aria-hidden>{v.name.slice(0, 1)}</span>
-                    <button type="button" className={`xtile__fav${fav ? " is-on" : ""}`} aria-pressed={fav} aria-label={fav ? `${v.name} is your favourite voice` : `Make ${v.name} your favourite voice`} onClick={() => setVoice({ favouriteVoiceId: fav ? null : v.voiceId })}>
-                      <Star size={20} aria-hidden fill={fav ? "currentColor" : "none"} />
+                    <button type="button" className={`xtile__fav${fav ? " is-on" : ""}`} aria-pressed={fav} aria-label={fav ? `Favourite voice: ${v.name} — press to remove` : `Make favourite: ${v.name}`} onClick={() => setVoice({ favouriteVoiceId: fav ? null : v.voiceId })}>
+                      <Star size={18} aria-hidden fill={fav ? "currentColor" : "none"} />
+                      <span aria-hidden>{fav ? "Favourite voice" : "Make favourite"}</span>
                     </button>
                   </div>
                   <p className="voice-card__name">{v.name}</p>

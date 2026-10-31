@@ -31,7 +31,7 @@ function CreateDialog({ open, onClose, seed }: { open: boolean; onClose: () => v
     if (t.length > MAX_TEXT) return setError(`Keep it to ${MAX_TEXT} characters or fewer.`);
     const e = addCustom({ text: t, category, icon });
     if (fav) toggleFavourite(e.id);
-    record("expression-created");
+    record("expression-saved");
     setText("");
     setError(null);
     onClose();
@@ -85,6 +85,7 @@ function CreateDialog({ open, onClose, seed }: { open: boolean; onClose: () => v
 export function ExpressionsPage() {
   useDocumentTitle("Quick expressions");
   const { prefs, toggleFavourite, removeCustom } = usePreferences();
+  const { record } = useJourney();
   const calm = useCalm();
   const [view, setView] = useState<View>("favourites");
   const [query, setQuery] = useState("");
@@ -111,6 +112,7 @@ export function ExpressionsPage() {
   function fav(e: Expression) {
     const on = prefs.favourites.includes(e.id);
     toggleFavourite(e.id);
+    if (!on) record("expression-saved");
     setAnnounce(on ? `Removed “${e.text}” from favourites.` : `Added “${e.text}” to favourites.`);
   }
 
@@ -122,7 +124,7 @@ export function ExpressionsPage() {
         <div>
           <p className="eyebrow">Quick expression board</p>
           <h1 className="display-2">Say it in a tap.</h1>
-          <p className="lede">Choose a tile, check the words, then confirm. Star the ones you use most to keep them on Home.</p>
+          <p className="lede">Choose a tile, check the words, then confirm. Press “Add to favourites” on the ones you use most to keep them on Home.</p>
         </div>
         <div className="board-tools">
           <div className="search">
@@ -188,7 +190,7 @@ export function ExpressionsPage() {
             ) : view === "favourites" ? (
               <>
                 <p className="empty-block__title">No favourites yet.</p>
-                <p className="muted">Press the star on any tile to keep it here and on Home.</p>
+                <p className="muted">Press “Add to favourites” on any tile to keep it here and on Home.</p>
               </>
             ) : (
               <>

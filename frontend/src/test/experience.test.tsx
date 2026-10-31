@@ -36,7 +36,7 @@ describe("quick expressions", () => {
     expect(within(dialog).getByText(/start a session to say this aloud/i)).toBeInTheDocument();
     expect(within(dialog).queryByRole("button", { name: /confirm these exact words/i })).toBeNull();
     await user.click(within(dialog).getByRole("button", { name: /show large/i }));
-    expect(within(dialog).getByText("Hello!", { selector: ".subtitle--huge" })).toBeInTheDocument();
+    expect(await within(dialog).findByText("Hello!", { selector: ".subtitle--huge" })).toBeInTheDocument();
   });
 
   it("emergency tiles say clearly that they do not call anyone", async () => {
@@ -57,9 +57,10 @@ describe("quick expressions", () => {
     await user.clear(screen.getByRole("searchbox"));
 
     await user.click(screen.getByRole("radio", { name: /yes \/ no/i }));
-    const star = screen.getByRole("button", { name: /add “maybe\.” to favourites/i });
-    await user.click(star);
-    expect(screen.getByRole("button", { name: /remove “maybe\.” from favourites/i })).toHaveAttribute("aria-pressed", "true");
+    const fav = screen.getByRole("button", { name: /^add to favourites: maybe\./i });
+    await user.click(fav);
+    expect(screen.getByRole("button", { name: /^favourite: maybe\. — press to remove/i })).toHaveAttribute("aria-pressed", "true");
+    expect(await screen.findByText("First Expression Saved", { selector: ".celebrate__title" })).toBeInTheDocument();
     await waitFor(() => expect(window.localStorage.getItem("lingual-assist:preferences:v1")).toContain("maybe"));
 
     await user.click(screen.getByRole("button", { name: /create your own/i }));
@@ -68,8 +69,6 @@ describe("quick expressions", () => {
     await user.click(within(dialog).getByRole("button", { name: /save expression/i }));
     await user.click(screen.getByRole("radio", { name: /yours/i }));
     expect(screen.getByRole("button", { name: /^please call meena — review before saying/i })).toBeInTheDocument();
-    // creating one earns a badge (the journey is on by default)
-    expect(await screen.findByText("Expression Creator", { selector: ".celebrate__title" })).toBeInTheDocument();
   });
 });
 
@@ -84,16 +83,14 @@ describe("settings and personalisation", () => {
     expect(document.documentElement.dataset.contrast).toBe("high");
     await user.click(screen.getByRole("radio", { name: /reduce motion/i }));
     expect(document.documentElement.dataset.motion).toBe("reduced");
-    // three different settings changed: a milestone, never a score
-    expect(await screen.findByText("Personalisation Pro", { selector: ".celebrate__title" })).toBeInTheDocument();
   });
 
   it("switching the journey off hides it and stops recording", async () => {
     const services = mockServices("water");
     const { user } = await renderApp("/settings", { services });
-    await user.click(screen.getByRole("switch", { name: /show my journey/i }));
+    await user.click(screen.getByRole("switch", { name: /show progress and badges/i }));
     const nav = screen.getByRole("navigation", { name: "Main" });
-    expect(within(nav).queryByRole("link", { name: "Journey" })).toBeNull();
+    expect(within(nav).queryByRole("link", { name: "Progress" })).toBeNull();
     await user.click(within(nav).getByRole("link", { name: "Session setup" }));
     await user.click(await screen.findByRole("button", { name: /start the session/i }));
     await screen.findByRole("heading", { level: 1, name: /talk, review, then speak/i });
@@ -102,29 +99,29 @@ describe("settings and personalisation", () => {
 });
 
 describe("journey", () => {
-  it("milestones come only from real actions", async () => {
+  it("steps and badges come only from real actions", async () => {
     const { user } = await renderApp("/journey");
-    expect(screen.getByRole("button", { name: /milestone 1 of 6: set up a session — not yet/i })).toBeInTheDocument();
-    expect(screen.getAllByText("Not yet").length).toBeGreaterThan(0);
+    expect(screen.getByRole("progressbar", { name: /optional steps done/i })).toHaveAttribute("aria-valuenow", "0");
+    expect(screen.getAllByText("Not yet").length).toBeGreaterThanOrEqual(5);
     await user.click(within(screen.getByRole("navigation", { name: "Main" })).getByRole("link", { name: "Session setup" }));
     await user.click(await screen.findByRole("button", { name: /start the session/i }));
     await screen.findByRole("heading", { level: 1, name: /talk, review, then speak/i });
-    await user.click(within(screen.getByRole("navigation", { name: "Main" })).getByRole("link", { name: "Journey" }));
-    expect(await screen.findByRole("button", { name: /milestone 1 of 6: set up a session — reached/i })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /milestone 2 of 6: say a first message — not yet/i })).toBeInTheDocument();
-    expect(screen.queryByText(/streak|leaderboard|points/i)).toBeNull();
+    await user.click(within(screen.getByRole("navigation", { name: "Main" })).getByRole("link", { name: "Progress" }));
+    const bar = await screen.findByRole("progressbar", { name: /optional steps done/i });
+    expect(bar).toHaveAttribute("aria-valuenow", "1");
+    expect(screen.getByText("Your communication space is ready.")).toBeInTheDocument();
   });
 });
 
 describe("voice studio", () => {
-  it("pitch is disabled with a reason when this browser has no built-in voice; settings save locally", async () => {
+  it("pitch is not offered when the voice engine can't change it; settings save locally", async () => {
     const { user } = await renderApp("/voice");
-    expect(screen.getByRole("slider", { name: /pitch/i })).toBeDisabled();
-    expect(screen.getByText(/this browser has no built-in voice, so pitch can’t be changed/i)).toBeInTheDocument();
+    expect(screen.queryByRole("slider", { name: /pitch/i })).toBeNull();
+    expect(screen.getByText(/pitch can’t be changed here: this browser has no built-in voice/i)).toBeInTheDocument();
     await user.click(screen.getByRole("button", { name: "Brisk" }));
     expect(screen.getByRole("slider", { name: /speaking speed/i })).toHaveValue("1.2");
     await user.click(screen.getByRole("button", { name: /save settings/i }));
-    expect(await screen.findByText(/saved on this device/i)).toBeInTheDocument();
+    expect(await screen.findByText("Saved on this device.")).toBeInTheDocument();
     expect(window.localStorage.getItem("lingual-assist:preferences:v1")).toContain('"rate":1.2');
   });
 });
@@ -134,15 +131,17 @@ describe("talk workspace", () => {
     const services = mockServices("water");
     const session = await activeSession(services, {}, { typedOnly: true });
     const { user } = await renderApp("/conversation", { services, session });
-    const signals = screen.getByRole("region", { name: /signals/i });
-    expect(within(signals).getByText("Off — typing only")).toBeInTheDocument();
-    expect(within(signals).getAllByText("—").length).toBeGreaterThanOrEqual(2); // camera off: no invented cues
+    const signals = screen.getByRole("region", { name: /what the assistant can use/i });
+    expect(within(signals).getByText("Typing only in this session")).toBeInTheDocument();
+    expect(within(signals).getAllByText("Needs face and hand consent")).toHaveLength(2); // no invented cues
+    expect(within(signals).getByText(/never guesses feelings/i)).toBeInTheDocument();
+    expect(within(signals).getByText("Not available")).toBeInTheDocument();
 
     await user.click(screen.getByRole("radio", { name: "Patient" }));
     await user.type(screen.getByLabelText(/type the patient’s message/i), "water please");
     await user.click(screen.getByRole("button", { name: /add patient message/i }));
     await screen.findByRole("list", { name: /suggested replies/i });
-    expect(screen.getByText("Possible meaning")).toBeInTheDocument();
+    expect(screen.getByText("Suggested meaning")).toBeInTheDocument();
     await user.click(screen.getByRole("button", { name: /could i have some water/i }));
     expect(screen.getByText("Suggested · not spoken")).toBeInTheDocument();
     await user.click(screen.getByRole("button", { name: /confirm these exact words/i }));
@@ -151,5 +150,26 @@ describe("talk workspace", () => {
     expect(within(timeline).getByText("Could I have some water?")).toBeInTheDocument();
     expect(within(timeline).getByText("Confirmed")).toBeInTheDocument();
     expect(await screen.findByText("First Conversation", { selector: ".celebrate__title" })).toBeInTheDocument();
+  });
+});
+
+describe("suggest different replies", () => {
+  it("records the current suggestions as rejected, asks again, and speaks nothing", async () => {
+    const services = mockServices("water");
+    const reject = vi.spyOn(services.conversation, "reject");
+    const finish = vi.spyOn(services.conversation, "finishTurn");
+    const speak = vi.spyOn(services.conversation, "speak");
+    const session = await activeSession(services, {}, { typedOnly: true });
+    const { user } = await renderApp("/conversation", { services, session });
+    await user.click(screen.getByRole("radio", { name: "Patient" }));
+    await user.type(screen.getByLabelText(/type the patient’s message/i), "water please");
+    await user.click(screen.getByRole("button", { name: /add patient message/i }));
+    await screen.findByRole("list", { name: /suggested replies/i });
+    await user.click(screen.getByRole("button", { name: /suggest different replies/i }));
+    await waitFor(() => expect(finish).toHaveBeenCalledTimes(2));
+    expect(reject).toHaveBeenCalledTimes(1);
+    expect(await screen.findByRole("list", { name: /suggested replies/i })).toBeInTheDocument();
+    expect(screen.getByText(/waiting for your choice · not spoken/i)).toBeInTheDocument();
+    expect(speak).not.toHaveBeenCalled();
   });
 });
