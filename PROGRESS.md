@@ -12,7 +12,7 @@ Status values: Not started · In progress · Done · Blocked
 | M3 | Speech Input (Scribe) | Done (live test skipped) | 24 pass + 1 skip / 86 pass + 2 skip | M3: Speech Input (Scribe) | no key / clip for live test |
 | M4 | Vision (MediaPipe) | Done (real-model path untested) | 28 pass + 1 skip / 63 pass + 1 skip | M4: Vision (MediaPipe) | .task files absent; real-model test skipped |
 | M5 | Evidence Packet | Done | 16/16 / 102/102 (+2 skip) | M5: Evidence Packet | |
-| M6 | Intent Fusion (Groq) | Not started | | | |
+| M6 | Intent Fusion (Groq) | Done (live test skipped) | 39 pass + 1 skip / 141 pass + 3 skip | M6: Intent Fusion (Groq) | no GROQ_API_KEY |
 | M7 | Human Confirmation | Not started | | | |
 | M8 | Voice Output (TTS) | Not started | | | |
 | M9 | Orchestrator + E2E | Not started | | | |
@@ -21,7 +21,7 @@ Status values: Not started · In progress · Done · Blocked
 | M12 | Avatar (stretch, gated) | DO NOT START | | | Only if the user explicitly asks after M11 |
 
 ## Current module
-M5 done; waiting for user to say "next" (M6).
+M6 done; waiting for user to say "next" (M7).
 
 ## Decisions log (append; newest last)
 - M0: kit files copied into repo root (project = this folder, not ps16-assistant/). Venv at .venv.
@@ -36,6 +36,7 @@ M5 done; waiting for user to say "next" (M6).
 - M4: both modes sit behind one VisionBackend.analyze(rgb, ts) -> Optional[FrameObs]. POST /vision/frame uses IMAGE mode, WS uses LIVE_STREAM (callbacks merged by LiveMerger, newest completed frame wins). Mouth/nod/stability thresholds are module constants in services/vision.py (starting values). gesture-map PUT needs no consent (it captures nothing); frame POST, cues GET and WS need face_capture. `mirrored` is a query param or multipart field, echoed only. Frames downscaled to max side 640.
 - M3: batch response `turn` is null (nothing stored) when Scribe returns only whitespace. Realtime `committed` events with blank text are not stored. Realtime payload text read from `text` (fallback `transcript`) because SDK docstrings and API notes disagree. WS adds a `started` ack, checks consent after every received message (withdrawal stops audio immediately) and caps total streamed bytes at MAX_AUDIO_BYTES. stage_ms uses the app clock around the Scribe call only.
 - M5: added CueTracker.cue_at(ts) (frames <= ts only, M4 current() behaviour unchanged) and ConversationState.get/latest/context_before. Context = up to N turns strictly BEFORE the target turn (later turns never leak). Cues are used only while face_capture consent is still true. Packet language = the turn's language. Gesture included only if stable.
+- M6: FusionResult is strict (no type coercion). Groq strict json_schema uses a simplified wire schema (constraints dropped, all fields required, additionalProperties false); Pydantic is the real validator. UNVERIFIED against live Groq: whether strict mode accepts this schema and the `reasoning_effort` param for gpt-oss-120b. Prompt language follows the TURN language (defaults to session language). Fuse response adds stage_ms. Clarification proposals are stored as `pending` with fusion.clarification_required=true.
 
 ## Open questions
 - Add ELEVENLABS_API_KEY to .env and a short clip in tests/data/ to run the M3 live test.

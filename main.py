@@ -8,8 +8,9 @@ from config import Settings, load_settings
 from errors import install_error_handlers
 from logging_setup import configure_logging
 from middleware import RequestIdMiddleware
-from routers import evidence, health, history, scribe, sessions, vision
+from routers import evidence, fusion, health, history, scribe, sessions, vision
 from services.vision import VisionRegistry
+from state.proposals import ProposalStore
 from state.sessions import SessionStore
 
 
@@ -21,6 +22,8 @@ def create_app(settings: Settings | None = None, clock: Clock | None = None) -> 
     app.state.sessions = SessionStore(app.state.clock, app.state.settings.history_window_turns)
     app.state.vision = VisionRegistry(app.state.settings)
     app.state.sessions.register_cleanup(app.state.vision.close_session)
+    app.state.proposals = ProposalStore()
+    app.state.sessions.register_cleanup(app.state.proposals.close_session)
     install_error_handlers(app)
     app.add_middleware(RequestIdMiddleware)
     app.include_router(health.router)
@@ -29,6 +32,7 @@ def create_app(settings: Settings | None = None, clock: Clock | None = None) -> 
     app.include_router(vision.router)
     app.include_router(scribe.router)
     app.include_router(evidence.router)
+    app.include_router(fusion.router)
     return app
 
 

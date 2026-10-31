@@ -8,6 +8,7 @@ from typing import Literal, Optional
 
 from pydantic import BaseModel, ConfigDict
 
+from errors import AppError
 from schemas import Language, Speaker, Turn
 from services.vision import VisionSession
 from state.sessions import Session
@@ -72,3 +73,19 @@ def build_packet(
         conversation_context=[ContextTurn(**c) for c in context],
         visual_cues=cues,
     )
+
+
+def resolve_patient_turn(session: Session, turn_id: Optional[str]) -> Turn:
+    """Default: latest patient turn. 409 none yet, 404 unknown id, 422 not a patient turn."""
+    conv = session.conversation
+    if turn_id is None:
+        turn = conv.latest("patient")
+        if turn is None:
+            raise AppError(409, "invalid_state", "No patient turn yet")
+        return turn
+    turn = conv.get(turn_id)
+    if turn is None:
+        raise AppError(404, "not_found", "Turn not found")
+    if turn.speaker != "patient":
+        raise AppError(422, "validation_error", "Evidence packets are built from a patient turn")
+    return turn
