@@ -6,7 +6,7 @@ MediaPipe, rank likely intended messages with a Groq LLM, let the **patient conf
 confirmed message with ElevenLabs TTS.
 
 > Scope: an assistive-communication prototype, not a diagnostic tool and not a clinically validated AAC device.
-> Project rules and safety invariants live in `CLAUDE.md`; module specs in `docs/`; build status in `PROGRESS.md`.
+> The safety rules are summarised at the end of this file.
 
 ## Setup
 Python 3.10 or 3.11.
