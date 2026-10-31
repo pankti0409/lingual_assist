@@ -14,14 +14,14 @@ Status values: Not started · In progress · Done · Blocked
 | M5 | Evidence Packet | Done | 16/16 / 102/102 (+2 skip) | M5: Evidence Packet | |
 | M6 | Intent Fusion (Groq) | Done (live test skipped) | 39 pass + 1 skip / 141 pass + 3 skip | M6: Intent Fusion (Groq) | no GROQ_API_KEY |
 | M7 | Human Confirmation | Done | 12/12 / 153 pass + 3 skip | M7: Human Confirmation | I1 mutation checked |
-| M8 | Voice Output (TTS) | Not started | | | |
+| M8 | Voice Output (TTS) | Done (live test skipped) | 22 pass + 1 skip / 175 pass + 4 skip | M8: Voice Output (TTS) | I1 + I8 mutation checked |
 | M9 | Orchestrator + E2E | Not started | | | |
 | M10 | Evaluation | Not started | | | |
 | M11 | Hardening / DoD | Not started | | | |
 | M12 | Avatar (stretch, gated) | DO NOT START | | | Only if the user explicitly asks after M11 |
 
 ## Current module
-M7 done; waiting for user to say "next" (M8).
+M8 done; waiting for user to say "next" (M9).
 
 ## Decisions log (append; newest last)
 - M0: kit files copied into repo root (project = this folder, not ps16-assistant/). Venv at .venv.
@@ -38,8 +38,10 @@ M7 done; waiting for user to say "next" (M8).
 - M5: added CueTracker.cue_at(ts) (frames <= ts only, M4 current() behaviour unchanged) and ConversationState.get/latest/context_before. Context = up to N turns strictly BEFORE the target turn (later turns never leak). Cues are used only while face_capture consent is still true. Packet language = the turn's language. Gesture included only if stable.
 - M6: FusionResult is strict (no type coercion). Groq strict json_schema uses a simplified wire schema (constraints dropped, all fields required, additionalProperties false); Pydantic is the real validator. UNVERIFIED against live Groq: whether strict mode accepts this schema and the `reasoning_effort` param for gpt-oss-120b. Prompt language follows the TURN language (defaults to session language). Fuse response adds stage_ms. Clarification proposals are stored as `pending` with fusion.clarification_required=true.
 - M7: Proposal gained `turn_id` (additive); the effort chain = (session, patient turn), so re-fusing the same turn accumulates effort until a message is confirmed, then the chain resets. Repeating the same action is idempotent and not counted as extra effort. A clarification proposal with 0 candidates cannot be confirmed by index (409) but can be edited. `re_fuse_available` is always true after reject/clarify. No proposal-listing endpoint (out of spec).
+- M8: Voice Design verified in installed SDK 2.75.0: text_to_voice.design(voice_description=) -> previews[].generated_voice_id -> text_to_voice.create(voice_name, voice_description, generated_voice_id) -> Voice.voice_id; first preview is auto-picked (no audition step). Speak streams audio/mpeg; first chunk is pulled before headers so errors still map to 502/503 and X-First-Audio-Ms is exact. Subtitle text travels percent-encoded in X-Subtitle-Text. Optional DEFAULT_VOICE_ID env gives a labelled `default_voice`. Session gained voice_id. Speak records go to app.state.speaklog (for M10). Provider-side minimum length of a voice description is unverified (short ones surface as 502).
 
 ## Open questions
+- Live TTS test needs ELEVENLABS_API_KEY and DEFAULT_VOICE_ID (an existing voice id) in .env.
 - Add ELEVENLABS_API_KEY to .env and a short clip in tests/data/ to run the M3 live test.
 - Download face_landmarker.task and gesture_recognizer.task into assets/ so the real-model path can be verified. for the user
 - (empty)

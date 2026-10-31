@@ -51,6 +51,7 @@ class Session:
     created_at: str
     conversation: ConversationState
     consent: ConsentRecord = field(default_factory=ConsentRecord)
+    voice_id: Optional[str] = None  # set by /voices/clone or /voices/design (M8)
     lock: asyncio.Lock = field(default_factory=asyncio.Lock)
 
 

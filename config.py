@@ -26,6 +26,7 @@ class Settings(BaseModel):
     groq_api_key: str = ""
 
     llm_model: str = "openai/gpt-oss-120b"
+    default_voice_id: str = ""  # optional labelled default voice (M8); empty = none
     tts_model: str = "eleven_flash_v2_5"
     scribe_batch_model: str = "scribe_v2"
     scribe_realtime_model: str = "scribe_v2_realtime"
@@ -57,6 +58,7 @@ _ENV_FIELDS: dict[str, tuple[str, type]] = {
     "ELEVENLABS_API_KEY": ("elevenlabs_api_key", str),
     "GROQ_API_KEY": ("groq_api_key", str),
     "LLM_MODEL": ("llm_model", str),
+    "DEFAULT_VOICE_ID": ("default_voice_id", str),
     "TTS_MODEL": ("tts_model", str),
     "SCRIBE_BATCH_MODEL": ("scribe_batch_model", str),
     "SCRIBE_REALTIME_MODEL": ("scribe_realtime_model", str),
