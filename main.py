@@ -8,7 +8,8 @@ from config import Settings, load_settings
 from errors import install_error_handlers
 from logging_setup import configure_logging
 from middleware import RequestIdMiddleware
-from routers import health
+from routers import health, sessions
+from state.sessions import SessionStore
 
 
 def create_app(settings: Settings | None = None, clock: Clock | None = None) -> FastAPI:
@@ -16,9 +17,11 @@ def create_app(settings: Settings | None = None, clock: Clock | None = None) -> 
     app = FastAPI(title="PS-16 Multimodal Live Conversation Assistant")
     app.state.settings = settings if settings is not None else load_settings()
     app.state.clock = clock if clock is not None else SystemClock()
+    app.state.sessions = SessionStore(app.state.clock)
     install_error_handlers(app)
     app.add_middleware(RequestIdMiddleware)
     app.include_router(health.router)
+    app.include_router(sessions.router)
     return app
 
 

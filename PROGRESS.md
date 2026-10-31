@@ -7,7 +7,7 @@ Status values: Not started · In progress · Done · Blocked
 | Module | Name | Status | Tests (module / regression) | Commit | Notes |
 |---|---|---|---|---|---|
 | M0 | Foundation | Done | 10/10 / 10/10 | M0: Foundation | Added internal_error (500) code for unhandled exceptions |
-| M1 | Consent + Sessions | Not started | | | |
+| M1 | Consent + Sessions | Done | 12/12 / 22/22 | M1: Consent + Sessions | I8 mutation checked |
 | M2 | Conversation State | Not started | | | |
 | M3 | Speech Input (Scribe) | Not started | | | |
 | M4 | Vision (MediaPipe) | Not started | | | |
@@ -21,7 +21,7 @@ Status values: Not started · In progress · Done · Blocked
 | M12 | Avatar (stretch, gated) | DO NOT START | | | Only if the user explicitly asks after M11 |
 
 ## Current module
-M0 done; waiting for user to say "next" (M1).
+M1 done; waiting for user to say "next" (M2).
 
 ## Decisions log (append; newest last)
 - M0: kit files copied into repo root (project = this folder, not ps16-assistant/). Venv at .venv.
@@ -30,6 +30,8 @@ M0 done; waiting for user to say "next" (M1).
 - M0: unhandled exceptions return 500 `internal_error` in the standard shape (not in the CLAUDE.md code list).
 - M0: HISTORY_WINDOW_TURNS outside 4-6 is a startup error.
 - M0: X-Request-ID from client accepted only if [A-Za-z0-9._-]{1,64}, else regenerated.
+
+- M1: POST /sessions returns 201; DELETE returns 204. Consent response adds recorded_ms (session clock) and recorded_at (UTC ISO). Cleanup hooks are sync callables; a failing hook is logged and does not block deletion.
 
 ## Open questions for the user
 - (empty)
