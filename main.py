@@ -8,7 +8,7 @@ from config import Settings, load_settings
 from errors import install_error_handlers
 from logging_setup import configure_logging
 from middleware import RequestIdMiddleware
-from routers import evidence, fusion, health, history, scribe, sessions, vision
+from routers import evidence, fusion, health, history, proposals, scribe, sessions, vision
 from services.vision import VisionRegistry
 from state.proposals import ProposalStore
 from state.sessions import SessionStore
@@ -33,6 +33,7 @@ def create_app(settings: Settings | None = None, clock: Clock | None = None) -> 
     app.include_router(scribe.router)
     app.include_router(evidence.router)
     app.include_router(fusion.router)
+    app.include_router(proposals.router)
     return app
 
 

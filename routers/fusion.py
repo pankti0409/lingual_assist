@@ -49,7 +49,7 @@ async def fuse(
     fusion = await ranker.rank(packet)
     stage_ms = max(0, timer.elapsed_ms())
     logger.info("fusion stage_ms=%d clarification=%s", stage_ms, fusion.clarification_required)
-    proposal = request.app.state.proposals.add(session, packet.timestamp_ms, fusion)
+    proposal = request.app.state.proposals.add(session, turn.turn_id, packet.timestamp_ms, fusion)
     return FuseResponse(
         proposal=proposal,
         evidence=packet,
